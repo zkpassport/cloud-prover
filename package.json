@@ -1,0 +1,21 @@
+{
+  "name": "zkpassport-cloud-prover-fargate",
+  "version": "1.0.0",
+  "description": "Cloud prover for generating proofs using bb",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "ts-node src/server.ts",
+    "build": "tsc",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.147",
+    "@types/bun": "latest",
+    "@types/express": "^5.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.0"
+  }
+}

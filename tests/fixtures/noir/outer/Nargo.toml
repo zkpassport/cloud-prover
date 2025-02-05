@@ -1,0 +1,6 @@
+[package]
+name = "outer"
+type = "bin"
+authors = [""]
+
+[dependencies]
