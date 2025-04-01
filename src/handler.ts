@@ -4,12 +4,14 @@ import * as fs from "fs"
 import * as os from "os"
 import * as path from "path"
 import { Request, Response } from "express"
+import { compressWitness, WitnessMap } from "@aztec/noir-acvm_js"
 
 const BB_VERSIONS = {
   "0.69.0": "bb_0.69.0",
   "0.72.1": "bb_0.72.1",
   "0.73.0": "bb_0.73.0",
   "0.74.0": "bb_0.74.0",
+  "v0.82.2": "bb",
 }
 
 const execAsync = promisify(exec)
@@ -70,20 +72,21 @@ export async function handleRequest(req: Request, res: Response) {
     tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "prover-"))
     const witnessPath = path.join(tempDir, "witness.gz")
     const circuitPath = path.join(tempDir, "circuit.json")
-    const proofPath = path.join(tempDir, "output.proof")
+    const proofPath = path.join(tempDir, "proof")
 
-    // Write base64-decoded witness to file
-    const witnessBuffer = Buffer.from(witness, "base64")
-    await writeFileAsync(witnessPath, witnessBuffer)
+    await writeFileAsync(circuitPath, JSON.stringify(circuit))
 
-    // Write base64-decoded circuit to file
-    const circuitBuffer = Buffer.from(circuit, "base64")
-    await writeFileAsync(circuitPath, circuitBuffer)
+    const witnessMap: WitnessMap = new Map(
+      (witness as string[]).map((witness, index) => [index, witness]),
+    )
+    const witnessBytes = await compressWitness(witnessMap)
+    await writeFileAsync(witnessPath, witnessBytes)
 
     // Execute bb prove_ultra_honk command
     const threadParam = threads ? `--threads ${threads} ` : ""
     const timePrefix = stats ? "/bin/time -v " : ""
-    const proveCommand = `${timePrefix}${BB_BINARY_PATH} prove_ultra_honk ${threadParam}-v -b ${circuitPath} -w ${witnessPath} -o ${proofPath}`
+
+    const proveCommand = `${timePrefix}${BB_BINARY_PATH} prove --scheme ultra_honk ${threadParam}-v -b ${circuitPath} -w ${witnessPath} -o ${tempDir}`
 
     console.log(`Executing: ${proveCommand}`)
     const startTime = Date.now()
@@ -104,11 +107,11 @@ export async function handleRequest(req: Request, res: Response) {
       throw new Error("Proof file was not created")
     }
     // Read the proof file and encode as base64
-    const proofBase64 = fs.readFileSync(proofPath).toString("base64")
+    const proofHex = fs.readFileSync(proofPath).toString("hex")
 
     return res.status(200).send({
       success: true,
-      proof: proofBase64,
+      proof: proofHex,
       bbout: stderr || "",
     })
   } catch (error) {
