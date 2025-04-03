@@ -4,7 +4,8 @@ import * as fs from "fs"
 import * as os from "os"
 import * as path from "path"
 import { Request, Response } from "express"
-import { compressWitness, WitnessMap } from "@aztec/noir-acvm_js"
+import { executeCircuit, compressWitness } from "@aztec/noir-acvm_js"
+import { generateWitnessMap } from "./utils"
 
 const BB_VERSIONS = {
   "0.69.0": "bb_0.69.0",
@@ -26,7 +27,7 @@ export async function handleRequest(req: Request, res: Response) {
       })
     }
 
-    const { bb_version, witness, circuit, stats = false, logging = false } = req.body
+    const { bb_version, inputs, circuit, stats = false, logging = false } = req.body
 
     const threads = req.body.threads !== undefined ? parseInt(req.body.threads) : undefined
     if (threads !== undefined && threads <= 0) {
@@ -40,9 +41,9 @@ export async function handleRequest(req: Request, res: Response) {
         supportedVersions: Object.keys(BB_VERSIONS),
       })
     }
-    if (!witness) {
+    if (!inputs) {
       return res.status(400).send({
-        error: "Missing witness field in request body",
+        error: "Missing inputs field in request body",
       })
     }
     if (!circuit) {
@@ -76,10 +77,22 @@ export async function handleRequest(req: Request, res: Response) {
 
     await writeFileAsync(circuitPath, JSON.stringify(circuit))
 
-    const witnessMap: WitnessMap = new Map(
-      (witness as string[]).map((witness, index) => [index, witness]),
+    // Generate witness map from the inputs and the circuit parameters (from the abi)
+    const witnessMap = generateWitnessMap(inputs, circuit.abi.parameters)
+
+    // Execute the circuit with the witness map
+    const executionResult = await executeCircuit(
+      Buffer.from(circuit.bytecode, "base64"),
+      witnessMap,
+      async (foreignCall) => {
+        return []
+      },
     )
-    const witnessBytes = await compressWitness(witnessMap)
+
+    // Compress the witness
+    const witnessBytes = await compressWitness(executionResult)
+
+    // Write the witness to a file
     await writeFileAsync(witnessPath, witnessBytes)
 
     // Execute bb prove_ultra_honk command
