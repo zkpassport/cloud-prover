@@ -8,10 +8,6 @@ import { executeCircuit, compressWitness } from "@aztec/noir-acvm_js"
 import { generateWitnessMap } from "./utils"
 
 const BB_VERSIONS = {
-  "0.69.0": "bb_0.69.0",
-  "0.72.1": "bb_0.72.1",
-  "0.73.0": "bb_0.73.0",
-  "0.74.0": "bb_0.74.0",
   "v0.82.2": "bb",
 }
 
@@ -99,7 +95,7 @@ export async function handleRequest(req: Request, res: Response) {
     const threadParam = threads ? `--threads ${threads} ` : ""
     const timePrefix = stats ? "/bin/time -v " : ""
 
-    const proveCommand = `${timePrefix}${BB_BINARY_PATH} prove --scheme ultra_honk ${threadParam}-v -b ${circuitPath} -w ${witnessPath} -o ${tempDir}`
+    const proveCommand = `${timePrefix}${BB_BINARY_PATH} prove --scheme ultra_honk --recursive --init_kzg_accumulator --honk_recursion 1 ${threadParam}-v -b ${circuitPath} -w ${witnessPath} -o ${tempDir}`
 
     console.log(`Executing: ${proveCommand}`)
     const startTime = Date.now()
