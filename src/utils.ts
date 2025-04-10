@@ -34,6 +34,11 @@ function flattenMultiDimensionalArray(array: any[], elementType: Type): any[] {
           flattenedArray.push(0)
         }
       }
+    } else if (elementType.kind === "struct") {
+      const map = generateWitnessMap(element, elementType.fields!, 0)
+      for (const [_, value] of map) {
+        flattenedArray.push(value)
+      }
     } else {
       flattenedArray.push(element)
     }
