@@ -2,7 +2,11 @@ import express, { Request, Response } from "express"
 import { handleRequest } from "./handler"
 
 const app = express()
-app.use(express.json())
+app.use(
+  express.json({
+    limit: "50mb",
+  }),
+)
 const port = process.env.PORT || 3000
 
 app.get("/", (req: Request, res: Response) => {

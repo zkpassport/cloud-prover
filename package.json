@@ -9,6 +9,7 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@aztec/noir-acvm_js": "^0.82.2",
     "express": "^4.21.2"
   },
   "devDependencies": {
