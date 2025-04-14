@@ -23,7 +23,15 @@ export async function handleRequest(req: Request, res: Response) {
       })
     }
 
-    const { bb_version, inputs, circuit, stats = false, logging = false } = req.body
+    const {
+      bb_version,
+      inputs,
+      circuit,
+      recursive = true,
+      evm = false,
+      stats = false,
+      logging = false,
+    } = req.body
 
     const threads = req.body.threads !== undefined ? parseInt(req.body.threads) : undefined
     if (threads !== undefined && threads <= 0) {
@@ -95,7 +103,11 @@ export async function handleRequest(req: Request, res: Response) {
     const threadParam = threads ? `--threads ${threads} ` : ""
     const timePrefix = stats ? "/bin/time -v " : ""
 
-    const proveCommand = `${timePrefix}${BB_BINARY_PATH} prove --scheme ultra_honk --recursive --init_kzg_accumulator --honk_recursion 1 ${threadParam}-v -b ${circuitPath} -w ${witnessPath} -o ${tempDir}`
+    const proveCommand = `${timePrefix}${BB_BINARY_PATH} prove --scheme ultra_honk ${
+      recursive ? "--recursive --init_kzg_accumulator" : ""
+    } ${
+      evm ? "--oracle_hash keccak" : ""
+    } --honk_recursion 1 ${threadParam}-v -b ${circuitPath} -w ${witnessPath} -o ${tempDir}`
 
     console.log(`Executing: ${proveCommand}`)
     const startTime = Date.now()
