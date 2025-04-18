@@ -16,9 +16,19 @@ service is deployed through Amazon ECR and exposed via an Application Load Balan
 - AWS CLI configured
 - Access to an AWS account with necessary permissions for ECR, ECS/Fargate, and ALB
 
+## Local Development
+
+To build the Docker image and run the cloud prover locally, run:
+
+```sh
+make docker-build-and-run
+```
+
+This will give you a local `http://localhost:3000` endpoint to test again.
+
 ## Environment Setup
 
-Before using the Makefile commands, you need to set the following environment variables:
+Before deploying to AWS, you need to set the following environment variables:
 
 ```sh
 export AWS_ACCOUNT_ID=
