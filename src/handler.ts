@@ -8,7 +8,7 @@ import { executeCircuit, compressWitness } from "@aztec/noir-acvm_js"
 import { generateWitnessMap } from "./utils"
 
 const BB_VERSIONS = {
-  "v0.82.2": "bb_0.82.2",
+  "0.82.2": "/usr/bin/bb_0.82.2",
 }
 
 const execAsync = promisify(exec)
@@ -23,8 +23,9 @@ export async function handleRequest(req: Request, res: Response) {
       })
     }
 
-    const {
+    let {
       bb_version,
+      witness,
       inputs,
       circuit,
       recursive = true,
@@ -44,10 +45,15 @@ export async function handleRequest(req: Request, res: Response) {
         error: "Missing bb_version in request body",
         supportedVersions: Object.keys(BB_VERSIONS),
       })
+    } else {
+      bb_version = bb_version.toString()
+      if (bb_version.startsWith("v")) {
+        bb_version = bb_version.slice(1)
+      }
     }
-    if (!inputs) {
+    if (!witness && !inputs) {
       return res.status(400).send({
-        error: "Missing inputs field in request body",
+        error: "Either witness or inputs field required",
       })
     }
     if (!circuit) {
@@ -81,24 +87,29 @@ export async function handleRequest(req: Request, res: Response) {
 
     await writeFileAsync(circuitPath, JSON.stringify(circuit))
 
-    // Generate witness map from the inputs and the circuit parameters (from the abi)
-    const witnessMap = generateWitnessMap(inputs, circuit.abi.parameters)
-
-    // Execute the circuit with the witness map
-    const executionResult = await executeCircuit(
-      Buffer.from(circuit.bytecode, "base64"),
-      witnessMap,
-      async (foreignCall) => {
-        return []
-      },
-    )
-
-    // Compress the witness
-    const witnessBytes = await compressWitness(executionResult)
-
-    // Write the witness to a file
-    await writeFileAsync(witnessPath, witnessBytes)
-
+    // Use solved witness if provided
+    if (witness) {
+      // Write base64-decoded witness to file
+      const witnessBuffer = Buffer.from(witness, "base64")
+      await writeFileAsync(witnessPath, witnessBuffer)
+    }
+    // Otherwise generate witness from inputs
+    else {
+      // Generate witness map from the inputs and the circuit parameters (from the abi)
+      const witnessMap = generateWitnessMap(inputs, circuit.abi.parameters)
+      // Execute the circuit with the witness map
+      const executionResult = await executeCircuit(
+        Buffer.from(circuit.bytecode, "base64"),
+        witnessMap,
+        async (foreignCall) => {
+          return []
+        },
+      )
+      // Compress the witness
+      const witnessBytes = await compressWitness(executionResult)
+      // Write the witness to a file
+      await writeFileAsync(witnessPath, witnessBytes)
+    }
     // Execute bb prove_ultra_honk command
     const threadParam = threads ? `--threads ${threads} ` : ""
     const timePrefix = stats ? "/bin/time -v " : ""

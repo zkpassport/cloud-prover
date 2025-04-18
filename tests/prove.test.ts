@@ -7,7 +7,7 @@ import { promisify } from "util"
 import * as os from "os"
 import { Request, Response } from "express"
 
-const BB_VERSION = "0.69.0"
+const BB_VERSION = "0.82.2"
 // const CIRCUIT = `simple_${BB_VERSION}`
 const CIRCUIT = `outer_${BB_VERSION}`
 
