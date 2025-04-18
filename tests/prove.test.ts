@@ -8,8 +8,7 @@ import * as os from "os"
 import { Request, Response } from "express"
 
 const BB_VERSION = "0.82.2"
-// const CIRCUIT = `simple_${BB_VERSION}`
-const CIRCUIT = `outer_${BB_VERSION}`
+const CIRCUIT = `simple_${BB_VERSION}`
 
 const execAsync = promisify(exec)
 const writeFileAsync = promisify(fs.writeFile)
@@ -19,18 +18,16 @@ describe("Handler tests", () => {
     // Load witness from file
     const witnessPath = path.join(__dirname, "fixtures", `${CIRCUIT}.gz`)
     const witnessBase64 = fs.readFileSync(witnessPath).toString("base64")
-
     // Load circuit from file
     const circuitPath = path.join(__dirname, "fixtures", `${CIRCUIT}.json`)
-    const circuitBase64 = fs.readFileSync(circuitPath).toString("base64")
-
+    const circuit = JSON.parse(fs.readFileSync(circuitPath).toString())
     // Mock Express request and response
     const mockReq = {
       body: {
         bb_version: BB_VERSION,
         witness: witnessBase64,
-        circuit: circuitBase64,
-        threads: 16,
+        circuit: circuit,
+        recursive: false,
       },
     } as Request
     let responseData: any = {}
@@ -62,11 +59,10 @@ describe("Handler tests", () => {
     const verifyProofPath = path.join(verifyDir, "output.proof")
 
     // Write the proof to a file
-    await writeFileAsync(verifyProofPath, Buffer.from(responseData.proof, "base64"))
-
+    await writeFileAsync(verifyProofPath, Buffer.from(responseData.proof, "hex"))
     // Run verification command
-    const vkeyPath = path.join(__dirname, "fixtures", "outer_honk.vkey")
-    const verifyCommand = `bb verify_ultra_honk -v -p ${verifyProofPath} -k ${vkeyPath}`
+    const vkeyPath = path.join(__dirname, "fixtures", `${CIRCUIT}.vkey`)
+    const verifyCommand = `bb verify -v -p ${verifyProofPath} -k ${vkeyPath}`
     console.log(`Executing verify command: ${verifyCommand}`)
     const { stdout: _, stderr } = await execAsync(verifyCommand, {
       cwd: verifyDir,
@@ -80,11 +76,9 @@ describe("Handler tests", () => {
     // Load witness from file
     const witnessPath = path.join(__dirname, "fixtures", `${CIRCUIT}.gz`)
     const witnessBase64 = fs.readFileSync(witnessPath).toString("base64")
-
     // Load circuit from file
     const circuitPath = path.join(__dirname, "fixtures", `${CIRCUIT}.json`)
-    const circuitBase64 = fs.readFileSync(circuitPath).toString("base64")
-
+    const circuit = JSON.parse(fs.readFileSync(circuitPath).toString())
     // Call the remote endpoint
     const response = await fetch(
       // "https://prove.zkpassport.id/prove",
@@ -97,8 +91,8 @@ describe("Handler tests", () => {
         body: JSON.stringify({
           bb_version: BB_VERSION,
           witness: witnessBase64,
-          circuit: circuitBase64,
-          threads: 32,
+          circuit,
+          recursive: false,
         }),
       },
     )
@@ -116,9 +110,9 @@ describe("Handler tests", () => {
     const verifyProofPath = path.join(verifyDir, "output.proof")
 
     // Save proof to file and verify
-    await writeFileAsync(verifyProofPath, Buffer.from(remoteResponseData.proof, "base64"))
+    await writeFileAsync(verifyProofPath, Buffer.from(remoteResponseData.proof, "hex"))
     const vkeyPath = path.join(__dirname, "fixtures", `${CIRCUIT}.vkey`)
-    const verifyCommand = `bb verify_ultra_honk -v -p ${verifyProofPath} -k ${vkeyPath}`
+    const verifyCommand = `bb verify -v -p ${verifyProofPath} -k ${vkeyPath}`
     console.log(`Executing verify command: ${verifyCommand}`)
     const { stdout: _, stderr } = await execAsync(verifyCommand, {
       cwd: verifyDir,

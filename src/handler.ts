@@ -8,7 +8,7 @@ import { executeCircuit, compressWitness } from "@aztec/noir-acvm_js"
 import { generateWitnessMap } from "./utils"
 
 const BB_VERSIONS = {
-  "0.82.2": "/usr/bin/bb_0.82.2",
+  "0.82.2": "bb",
 }
 
 const execAsync = promisify(exec)
@@ -22,7 +22,6 @@ export async function handleRequest(req: Request, res: Response) {
         error: "Empty request",
       })
     }
-
     let {
       bb_version,
       witness,
@@ -34,12 +33,6 @@ export async function handleRequest(req: Request, res: Response) {
       logging = false,
     } = req.body
 
-    const threads = req.body.threads !== undefined ? parseInt(req.body.threads) : undefined
-    if (threads !== undefined && threads <= 0) {
-      return res.status(400).send({
-        error: "Threads parameter must be a positive number",
-      })
-    }
     if (!bb_version) {
       return res.status(400).send({
         error: "Missing bb_version in request body",
@@ -70,7 +63,6 @@ export async function handleRequest(req: Request, res: Response) {
       })
     }
     const BB_BINARY_PATH = mappedPath
-
     if (!BB_BINARY_PATH) {
       return res.status(400).send({
         error:
@@ -110,15 +102,14 @@ export async function handleRequest(req: Request, res: Response) {
       // Write the witness to a file
       await writeFileAsync(witnessPath, witnessBytes)
     }
-    // Execute bb prove_ultra_honk command
-    const threadParam = threads ? `--threads ${threads} ` : ""
-    const timePrefix = stats ? "/bin/time -v " : ""
 
+    // Execute bb prove command
+    const timePrefix = stats ? "/bin/time -v " : ""
     const proveCommand = `${timePrefix}${BB_BINARY_PATH} prove --scheme ultra_honk ${
       recursive ? "--recursive --init_kzg_accumulator" : ""
-    } ${
-      evm ? "--oracle_hash keccak" : ""
-    } --honk_recursion 1 ${threadParam}-v -b ${circuitPath} -w ${witnessPath} -o ${tempDir}`
+    }${
+      evm ? " --oracle_hash keccak" : ""
+    } --honk_recursion 1 -v -b ${circuitPath} -w ${witnessPath} -o ${tempDir}`
 
     console.log(`Executing: ${proveCommand}`)
     const startTime = Date.now()
@@ -149,7 +140,7 @@ export async function handleRequest(req: Request, res: Response) {
   } catch (error) {
     console.error("Error executing bb:", error)
     return res.status(500).send({
-      error: "Failed to execute bb prove_ultra_honk",
+      error: "Failed to execute bb prove",
       details: error instanceof Error ? error.message : "Unknown error",
     })
   } finally {

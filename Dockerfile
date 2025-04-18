@@ -73,7 +73,7 @@ RUN npm run build
 FROM gcr.io/distroless/nodejs20
 
 # Copy bb binary from builder
-COPY --from=builder /bb_0.82.2 /usr/bin/bb_0.82.2
+COPY --from=builder /bb_0.82.2 /usr/bin/bb
 
 # Copy crs from builder
 COPY --from=builder /root/bn254_g1.dat /root/.bb-crs/
