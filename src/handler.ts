@@ -8,7 +8,7 @@ import { executeCircuit, compressWitness } from "@aztec/noir-acvm_js"
 import { generateWitnessMap } from "./utils"
 
 const BB_VERSIONS = {
-  "v0.82.2": "bb",
+  "v0.82.2": "bb_0.82.2",
 }
 
 const execAsync = promisify(exec)

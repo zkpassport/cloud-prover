@@ -48,9 +48,9 @@ COPY scripts/download_bb_crs.sh /scripts/download_bb_crs.sh
 RUN chmod +x /scripts/download_bb_crs.sh
 RUN cd ~ && /scripts/download_bb_crs.sh 22
 
-# Build bb v0.69.0
-RUN cd ~ && git clone --depth 1 --branch barretenberg-v0.69.0 https://github.com/aztecprotocol/aztec-packages aztec-packages-v0.69.0
-RUN cd ~/aztec-packages-v0.69.0/barretenberg/cpp && cmake --preset clang16 \
+# Build bb v0.82.2
+RUN cd ~ && git clone --depth 1 --branch v0.82.2 https://github.com/aztecprotocol/aztec-packages aztec-packages-v0.82.2
+RUN cd ~/aztec-packages-v0.82.2/barretenberg/cpp && cmake --preset clang16 \
     -DCMAKE_BUILD_TYPE=Release \
     -DTARGET_ARCH=native \
     -DENABLE_PAR_ALGOS=ON \
@@ -58,43 +58,7 @@ RUN cd ~/aztec-packages-v0.69.0/barretenberg/cpp && cmake --preset clang16 \
     -DDISABLE_AZTEC_VM=ON \
     -DCMAKE_CXX_FLAGS="-O3 -march=native -mtune=native" && \
     cmake --build build --target bb
-RUN cp ~/aztec-packages-v0.69.0/barretenberg/cpp/build/bin/bb /bb_0.69.0
-
-# Build bb v0.72.1
-RUN cd ~ && git clone --depth 1 --branch barretenberg-v0.72.1 https://github.com/aztecprotocol/aztec-packages aztec-packages-v0.72.1
-RUN cd ~/aztec-packages-v0.72.1/barretenberg/cpp && cmake --preset clang16 \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DTARGET_ARCH=native \
-    -DENABLE_PAR_ALGOS=ON \
-    -DMULTITHREADING=ON \
-    -DDISABLE_AZTEC_VM=ON \
-    -DCMAKE_CXX_FLAGS="-O3 -march=native -mtune=native" && \
-    cmake --build build --target bb
-RUN cp ~/aztec-packages-v0.72.1/barretenberg/cpp/build/bin/bb /bb_0.72.1
-
-# Build bb v0.73.0
-RUN cd ~ && git clone --depth 1 --branch barretenberg-v0.73.0 https://github.com/aztecprotocol/aztec-packages aztec-packages-v0.73.0
-RUN cd ~/aztec-packages-v0.73.0/barretenberg/cpp && cmake --preset clang16 \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DTARGET_ARCH=native \
-    -DENABLE_PAR_ALGOS=ON \
-    -DMULTITHREADING=ON \
-    -DDISABLE_AZTEC_VM=ON \
-    -DCMAKE_CXX_FLAGS="-O3 -march=native -mtune=native" && \
-    cmake --build build --target bb
-RUN cp ~/aztec-packages-v0.73.0/barretenberg/cpp/build/bin/bb /bb_0.73.0
-
-# Build bb v0.74.0
-RUN cd ~ && git clone --depth 1 --branch barretenberg-v0.74.0 https://github.com/aztecprotocol/aztec-packages aztec-packages-v0.74.0
-RUN cd ~/aztec-packages-v0.74.0/barretenberg/cpp && cmake --preset clang16 \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DTARGET_ARCH=native \
-    -DENABLE_PAR_ALGOS=ON \
-    -DMULTITHREADING=ON \
-    -DDISABLE_AZTEC_VM=ON \
-    -DCMAKE_CXX_FLAGS="-O3 -march=native -mtune=native" && \
-    cmake --build build --target bb
-RUN cp ~/aztec-packages-v0.74.0/barretenberg/cpp/build/bin/bb /bb_0.74.0
+RUN cp ~/aztec-packages-v0.82.2/barretenberg/cpp/build/bin/bb /bb_0.82.2
 
 # Install npm dependencies and build nodejs app
 WORKDIR /app
@@ -109,10 +73,7 @@ RUN npm run build
 FROM gcr.io/distroless/nodejs20
 
 # Copy bb binary from builder
-COPY --from=builder /bb_0.69.0 /usr/bin/bb_0.69.0
-COPY --from=builder /bb_0.72.1 /usr/bin/bb_0.72.1
-COPY --from=builder /bb_0.73.0 /usr/bin/bb_0.73.0
-COPY --from=builder /bb_0.74.0 /usr/bin/bb_0.74.0
+COPY --from=builder /bb_0.82.2 /usr/bin/bb_0.82.2
 
 # Copy crs from builder
 COPY --from=builder /root/bn254_g1.dat /root/.bb-crs/
