@@ -46,7 +46,7 @@ RUN cd ~ && wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && ./llvm.sh 1
 # Download bb crs
 COPY scripts/download_bb_crs.sh /scripts/download_bb_crs.sh
 RUN chmod +x /scripts/download_bb_crs.sh
-RUN cd ~ && /scripts/download_bb_crs.sh 22
+RUN cd ~ && /scripts/download_bb_crs.sh 23
 
 # Build bb v0.82.2
 RUN cd ~ && git clone --depth 1 --branch v0.82.2 https://github.com/aztecprotocol/aztec-packages aztec-packages-v0.82.2
