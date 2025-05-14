@@ -13,7 +13,6 @@
     "express": "^4.21.2"
   },
   "devDependencies": {
-    "@types/aws-lambda": "^8.10.147",
     "@types/bun": "latest",
     "@types/express": "^5.0.0",
     "ts-node": "^10.9.2",
