@@ -7,7 +7,7 @@ import { promisify } from "util"
 import * as os from "os"
 import { Request, Response } from "express"
 
-const BB_VERSION = "0.82.2"
+const BB_VERSION = "1.0.0-nightly.20250701"
 const CIRCUIT = `simple_${BB_VERSION}`
 
 const execAsync = promisify(exec)
@@ -52,17 +52,20 @@ describe("Handler tests", () => {
     expect(responseData.statusCode).toBe(200)
     expect(responseData).toHaveProperty("success")
     expect(responseData).toHaveProperty("proof")
+    expect(responseData).toHaveProperty("public_inputs")
     expect(responseData.success).toBe(true)
 
     // Create a temporary directory for verification
     const verifyDir = fs.mkdtempSync(path.join(os.tmpdir(), "verify-"))
     const verifyProofPath = path.join(verifyDir, "output.proof")
+    const publicInputsPath = path.join(verifyDir, "public_inputs")
 
     // Write the proof to a file
     await writeFileAsync(verifyProofPath, Buffer.from(responseData.proof, "hex"))
+    await writeFileAsync(publicInputsPath, Buffer.from(responseData.public_inputs, "hex"))
     // Run verification command
     const vkeyPath = path.join(__dirname, "fixtures", `${CIRCUIT}.vkey`)
-    const verifyCommand = `bb verify -v -p ${verifyProofPath} -k ${vkeyPath}`
+    const verifyCommand = `bb verify -v -p ${verifyProofPath} -k ${vkeyPath} -i ${publicInputsPath}`
     console.log(`Executing verify command: ${verifyCommand}`)
     const { stdout: _, stderr } = await execAsync(verifyCommand, {
       cwd: verifyDir,
@@ -103,16 +106,19 @@ describe("Handler tests", () => {
 
     expect(remoteResponseData).toHaveProperty("success")
     expect(remoteResponseData).toHaveProperty("proof")
+    expect(remoteResponseData).toHaveProperty("public_inputs")
     expect(remoteResponseData.success).toBe(true)
 
     // Create temporary directory for verification
     const verifyDir = fs.mkdtempSync(path.join(os.tmpdir(), "verify-"))
     const verifyProofPath = path.join(verifyDir, "output.proof")
+    const publicInputsPath = path.join(verifyDir, "public_inputs")
 
     // Save proof to file and verify
     await writeFileAsync(verifyProofPath, Buffer.from(remoteResponseData.proof, "hex"))
+    await writeFileAsync(publicInputsPath, Buffer.from(remoteResponseData.public_inputs, "hex"))
     const vkeyPath = path.join(__dirname, "fixtures", `${CIRCUIT}.vkey`)
-    const verifyCommand = `bb verify -v -p ${verifyProofPath} -k ${vkeyPath}`
+    const verifyCommand = `bb verify -v -p ${verifyProofPath} -k ${vkeyPath} -i ${publicInputsPath}`
     console.log(`Executing verify command: ${verifyCommand}`)
     const { stdout: _, stderr } = await execAsync(verifyCommand, {
       cwd: verifyDir,
@@ -120,7 +126,7 @@ describe("Handler tests", () => {
 
     // Clean up temporary directory
     if (verifyDir && fs.existsSync(verifyDir)) {
-      fs.rmSync(verifyDir, { force: true })
+      fs.rmSync(verifyDir, { force: true, recursive: true })
     }
 
     expect(stderr).toContain("verified: 1")

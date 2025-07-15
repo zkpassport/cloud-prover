@@ -3,8 +3,8 @@
 set -e
 CIRCUIT="${1:-simple}"
 
-NOIR_VERSION_REQUIRED="1.0.0-beta.4"
-BB_VERSION_REQUIRED="0.82.2"
+NOIR_VERSION_REQUIRED="1.0.0-beta.8"
+BB_VERSION_REQUIRED="1.0.0-nightly.20250701"
 
 # Version checks
 if [[ ! $(nargo --version | head -n 1) == "nargo version = $NOIR_VERSION_REQUIRED" ]]; then

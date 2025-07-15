@@ -8,7 +8,7 @@ import { executeCircuit, compressWitness } from "@aztec/noir-acvm_js"
 import { generateWitnessMap } from "./utils"
 
 const BB_VERSIONS = {
-  "0.82.2": "bb",
+  "1.0.0-nightly.20250701": "bb",
 }
 
 const execAsync = promisify(exec)
@@ -29,6 +29,7 @@ export async function handleRequest(req: Request, res: Response) {
       circuit,
       recursive = true,
       evm = false,
+      disable_zk = false,
       stats = false,
       logging = false,
     } = req.body
@@ -76,6 +77,7 @@ export async function handleRequest(req: Request, res: Response) {
     const witnessPath = path.join(tempDir, "witness.gz")
     const circuitPath = path.join(tempDir, "circuit.json")
     const proofPath = path.join(tempDir, "proof")
+    const publicInputPath = path.join(tempDir, "public_inputs")
 
     await writeFileAsync(circuitPath, JSON.stringify(circuit))
 
@@ -105,11 +107,13 @@ export async function handleRequest(req: Request, res: Response) {
 
     // Execute bb prove command
     const timePrefix = stats ? "/bin/time -v " : ""
-    const proveCommand = `${timePrefix}${BB_BINARY_PATH} prove --scheme ultra_honk ${
+    const proveCommand = `${timePrefix}${BB_BINARY_PATH} prove --scheme ultra_honk --write_vk ${
       recursive ? "--recursive --init_kzg_accumulator" : ""
     }${
       evm ? " --oracle_hash keccak" : ""
-    } --honk_recursion 1 -v -b ${circuitPath} -w ${witnessPath} -o ${tempDir}`
+    } --honk_recursion 1 -v -b ${circuitPath} -w ${witnessPath} -o ${tempDir} ${
+      disable_zk ? "--disable_zk" : ""
+    }`
 
     console.log(`Executing: ${proveCommand}`)
     const startTime = Date.now()
@@ -131,11 +135,13 @@ export async function handleRequest(req: Request, res: Response) {
     }
     // Read the proof file and encode as base64
     const proofHex = fs.readFileSync(proofPath).toString("hex")
+    const publicInputs = fs.readFileSync(publicInputPath).toString("hex")
 
     return res.status(200).send({
       success: true,
       proof: proofHex,
       bbout: stderr || "",
+      public_inputs: publicInputs,
     })
   } catch (error) {
     console.error("Error executing bb:", error)
