@@ -60,6 +60,18 @@ RUN cd ~/aztec-packages-v1.0.0-nightly.20250701/barretenberg/cpp && cmake --pres
     cmake --build build --target bb
 RUN cp ~/aztec-packages-v1.0.0-nightly.20250701/barretenberg/cpp/build/bin/bb /bb_v1.0.0-nightly.20250701
 
+# Build bb v1.0.0-nightly.20250723
+RUN cd ~ && git clone --depth 1 --branch v1.0.0-nightly.20250723 https://github.com/aztecprotocol/aztec-packages aztec-packages-v1.0.0-nightly.20250723
+RUN cd ~/aztec-packages-v1.0.0-nightly.20250723/barretenberg/cpp && cmake --preset clang16 \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DTARGET_ARCH=native \
+    -DENABLE_PAR_ALGOS=ON \
+    -DMULTITHREADING=ON \
+    -DDISABLE_AZTEC_VM=ON \
+    -DCMAKE_CXX_FLAGS="-O3 -march=native -mtune=native" && \
+    cmake --build build --target bb
+RUN cp ~/aztec-packages-v1.0.0-nightly.20250723/barretenberg/cpp/build/bin/bb /bb_v1.0.0-nightly.20250723
+
 # Install npm dependencies and build nodejs app
 WORKDIR /app
 COPY package.json package-lock.json tsconfig.json .
@@ -73,7 +85,8 @@ RUN npm run build
 FROM gcr.io/distroless/nodejs20
 
 # Copy bb binary from builder
-COPY --from=builder /bb_v1.0.0-nightly.20250701 /usr/bin/bb
+COPY --from=builder /bb_v1.0.0-nightly.20250701 /usr/bin/bb_v1.0.0-nightly.20250701
+COPY --from=builder /bb_v1.0.0-nightly.20250723 /usr/bin/bb_v1.0.0-nightly.20250723
 
 # Copy crs from builder
 COPY --from=builder /root/bn254_g1.dat /root/.bb-crs/
