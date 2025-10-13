@@ -10,6 +10,7 @@ import { generateWitnessMap } from "./utils"
 const BB_VERSIONS = {
   "1.0.0-nightly.20250701": "bb_v1.0.0-nightly.20250701",
   "1.0.0-nightly.20250723": "bb_v1.0.0-nightly.20250723",
+  "2.0.3": "bb",
 }
 
 const execAsync = promisify(exec)
@@ -28,7 +29,6 @@ export async function handleRequest(req: Request, res: Response) {
       witness,
       inputs,
       circuit,
-      recursive = true,
       evm = false,
       disable_zk = false,
       stats = false,
@@ -109,12 +109,8 @@ export async function handleRequest(req: Request, res: Response) {
     // Execute bb prove command
     const timePrefix = stats ? "/bin/time -v " : ""
     const proveCommand = `${timePrefix}${BB_BINARY_PATH} prove --scheme ultra_honk --write_vk ${
-      recursive ? "--recursive --init_kzg_accumulator" : ""
-    }${
       evm ? " --oracle_hash keccak" : ""
-    } --honk_recursion 1 -v -b ${circuitPath} -w ${witnessPath} -o ${tempDir} ${
-      disable_zk ? "--disable_zk" : ""
-    }`
+    } -v -b ${circuitPath} -w ${witnessPath} -o ${tempDir} ${disable_zk ? "--disable_zk" : ""}`
 
     console.log(`Executing: ${proveCommand}`)
     const startTime = Date.now()
