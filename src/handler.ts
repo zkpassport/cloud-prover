@@ -8,7 +8,6 @@ import { executeCircuit, compressWitness } from "@aztec/noir-acvm_js"
 import { generateWitnessMap } from "./utils"
 
 const BB_VERSIONS = {
-  "1.0.0-nightly.20250701": "bb_v1.0.0-nightly.20250701",
   "1.0.0-nightly.20250723": "bb_v1.0.0-nightly.20250723",
   "2.0.3": "bb",
 }
