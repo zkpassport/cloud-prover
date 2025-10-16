@@ -4,7 +4,14 @@ import * as fs from "fs"
 import * as os from "os"
 import * as path from "path"
 import { Request, Response } from "express"
-import { executeCircuit, compressWitness } from "@aztec/noir-acvm_js"
+import {
+  executeCircuit as executeCircuitV2_0_3,
+  compressWitness as compressWitnessV2_0_3,
+} from "@aztec/noir-acvm_js-2.0.3"
+import {
+  executeCircuit as executeCircuitV1_0_0_nightly_20250723,
+  compressWitness as compressWitnessV1_0_0_nightly_20250723,
+} from "@aztec/noir-acvm_js-1.0.0-nightly.20250723"
 import { generateWitnessMap } from "./utils"
 
 const BB_VERSIONS = {
@@ -14,6 +21,26 @@ const BB_VERSIONS = {
 
 const execAsync = promisify(exec)
 const writeFileAsync = promisify(fs.writeFile)
+
+const executeCircuit = (bb_version: string) => {
+  if (bb_version === "1.0.0-nightly.20250723") {
+    return executeCircuitV1_0_0_nightly_20250723
+  } else if (bb_version === "2.0.3") {
+    return executeCircuitV2_0_3
+  } else {
+    throw new Error(`Unsupported bb version: ${bb_version}`)
+  }
+}
+
+const compressWitness = (bb_version: string) => {
+  if (bb_version === "1.0.0-nightly.20250723") {
+    return compressWitnessV1_0_0_nightly_20250723
+  } else if (bb_version === "2.0.3") {
+    return compressWitnessV2_0_3
+  } else {
+    throw new Error(`Unsupported bb version: ${bb_version}`)
+  }
+}
 
 export async function handleRequest(req: Request, res: Response) {
   let tempDir: string | undefined
@@ -92,7 +119,7 @@ export async function handleRequest(req: Request, res: Response) {
       // Generate witness map from the inputs and the circuit parameters (from the abi)
       const witnessMap = generateWitnessMap(inputs, circuit.abi.parameters)
       // Execute the circuit with the witness map
-      const executionResult = await executeCircuit(
+      const executionResult = await executeCircuit(bb_version)(
         Buffer.from(circuit.bytecode, "base64"),
         witnessMap,
         async (foreignCall) => {
@@ -100,7 +127,7 @@ export async function handleRequest(req: Request, res: Response) {
         },
       )
       // Compress the witness
-      const witnessBytes = await compressWitness(executionResult)
+      const witnessBytes = await compressWitness(bb_version)(executionResult)
       // Write the witness to a file
       await writeFileAsync(witnessPath, witnessBytes)
     }

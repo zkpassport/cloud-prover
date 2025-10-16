@@ -4,7 +4,8 @@
     "": {
       "name": "zkpassport-cloud-prover-fargate",
       "dependencies": {
-        "@aztec/noir-acvm_js": "^2.0.3",
+        "@aztec/noir-acvm_js-1.0.0-nightly.20250723": "npm:@aztec/noir-acvm_js@1.0.0-nightly.20250723",
+        "@aztec/noir-acvm_js-2.0.3": "npm:@aztec/noir-acvm_js@2.0.3",
         "express": "^4.21.2",
       },
       "devDependencies": {
@@ -17,7 +18,9 @@
     },
   },
   "packages": {
-    "@aztec/noir-acvm_js": ["@aztec/noir-acvm_js@2.0.3", "", {}, "sha512-ykxlUHop7ouYpsCstd55h97ijTYPr9feDmrg0Mcb3cyQMhyAIMnEfkDV8/sUdqmA+UetE1n1x1/91F/+AD6fBg=="],
+    "@aztec/noir-acvm_js-1.0.0-nightly.20250723": ["@aztec/noir-acvm_js@1.0.0-nightly.20250723", "", {}, "sha512-mt6bR/8NLwdouQPRdw6D7cwFSizEiNJIkqP8Enr+TMmscO6OYI+QET5jyAzcIHjdOHC1ghrK3xRConL2Q0/7Iw=="],
+
+    "@aztec/noir-acvm_js-2.0.3": ["@aztec/noir-acvm_js@2.0.3", "", {}, "sha512-ykxlUHop7ouYpsCstd55h97ijTYPr9feDmrg0Mcb3cyQMhyAIMnEfkDV8/sUdqmA+UetE1n1x1/91F/+AD6fBg=="],
 
     "@cspotcode/source-map-support": ["@cspotcode/source-map-support@0.8.1", "", { "dependencies": { "@jridgewell/trace-mapping": "0.3.9" } }, "sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw=="],
 

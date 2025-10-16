@@ -40,8 +40,8 @@ ENV LD_LIBRARY_PATH=/opt/glibc-2.38/lib:/opt/gcc-13.2/lib64
 RUN apt-key adv --fetch-keys https://apt.kitware.com/keys/kitware-archive-latest.asc
 RUN apt update && apt install -y libssl-dev && rm -rf /var/lib/apt/lists/*
 
-# Install LLVM 16 (clang 16)
-RUN cd ~ && wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && ./llvm.sh 16
+# Install LLVM 16 (clang 16) and LLVM 20 (clang 20)
+RUN cd ~ && wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && ./llvm.sh 16 && ./llvm.sh 20
 
 # Download bb crs
 COPY scripts/download_bb_crs.sh /scripts/download_bb_crs.sh
@@ -62,7 +62,7 @@ RUN cp ~/aztec-packages-v1.0.0-nightly.20250723/barretenberg/cpp/build/bin/bb /b
 
 # Build bb v2.0.3
 RUN cd ~ && git clone --depth 1 --branch v2.0.3 https://github.com/aztecprotocol/aztec-packages aztec-packages-v2.0.3
-RUN cd ~/aztec-packages-v2.0.3/barretenberg/cpp && cmake --preset clang16 \
+RUN cd ~/aztec-packages-v2.0.3/barretenberg/cpp && cmake --preset clang20 \
     -DCMAKE_BUILD_TYPE=Release \
     -DTARGET_ARCH=native \
     -DENABLE_PAR_ALGOS=ON \
