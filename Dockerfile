@@ -61,7 +61,7 @@ RUN cd ~/aztec-packages-v1.0.0-nightly.20250723/barretenberg/cpp && cmake --pres
 RUN cp ~/aztec-packages-v1.0.0-nightly.20250723/barretenberg/cpp/build/bin/bb /bb_v1.0.0-nightly.20250723
 
 # Build bb v2.0.3
-RUN cd ~ && git clone --depth 1 --branch v2.0.3 https://github.com/aztecprotocol/aztec-packages aztec-packages-v2.0.3
+RUN cd ~ && git clone --depth 1 --branch v2.0.3 https://github.com/zkpassport/aztec-packages aztec-packages-v2.0.3
 RUN cd ~/aztec-packages-v2.0.3/barretenberg/cpp && cmake --preset clang20 \
     -DCMAKE_BUILD_TYPE=Release \
     -DTARGET_ARCH=native \
