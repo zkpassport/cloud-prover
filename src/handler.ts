@@ -52,8 +52,12 @@ const compressWitness = (bb_version: string) => {
  * @returns True if the circuit is valid (i.e. part of our circuit registry)
  */
 async function isValidCircuit(circuitRoot: string, vkey: string, circuitName: string) {
-  // Only outer and facematch circuits should be used in the cloud prover
-  if (!circuitName.startsWith("outer") && !circuitName.startsWith("facematch")) {
+  // Only outer, DSC signature verification and facematch circuits should be used in the cloud prover
+  if (
+    !circuitName.startsWith("outer") &&
+    !circuitName.startsWith("facematch") &&
+    !circuitName.startsWith("sig_check_dsc")
+  ) {
     return false
   }
 
