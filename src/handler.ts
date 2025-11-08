@@ -13,6 +13,8 @@ import {
   compressWitness as compressWitnessV1_0_0_nightly_20250723,
 } from "@aztec/noir-acvm_js-1.0.0-nightly.20250723"
 import { generateWitnessMap } from "./utils"
+import { RegistryClient } from "@zkpassport/registry"
+import { CircuitManifest, PackagedCircuit } from "@zkpassport/utils"
 
 const BB_VERSIONS = {
   "1.0.0-nightly.20250723": "bb_v1.0.0-nightly.20250723",
@@ -42,6 +44,33 @@ const compressWitness = (bb_version: string) => {
   }
 }
 
+/**
+ *
+ * @param circuitRoot - The root of the circuit registry
+ * @param vkey - The vkey of the circuit (in base64)
+ * @param circuitName - The name of the circuit
+ * @returns True if the circuit is valid (i.e. part of our circuit registry)
+ */
+async function isValidCircuit(circuitRoot: string, vkey: string, circuitName: string) {
+  // Only outer, DSC signature verification and facematch circuits should be used in the cloud prover
+  if (
+    !circuitName.startsWith("outer") &&
+    !circuitName.startsWith("facematch") &&
+    !circuitName.startsWith("sig_check_dsc")
+  ) {
+    return false
+  }
+
+  const client = new RegistryClient({
+    chainId: 11155111,
+  })
+  const manifest: CircuitManifest = await client.getCircuitManifest(circuitRoot)
+  const packagedCircuit: PackagedCircuit = await client.getPackagedCircuit(circuitName, manifest, {
+    validate: false,
+  })
+  return packagedCircuit.vkey == vkey
+}
+
 export async function handleRequest(req: Request, res: Response) {
   let tempDir: string | undefined
   try {
@@ -55,6 +84,9 @@ export async function handleRequest(req: Request, res: Response) {
       witness,
       inputs,
       circuit,
+      vkey,
+      circuit_root,
+      circuit_name,
       evm = false,
       disable_zk = false,
       stats = false,
@@ -82,6 +114,17 @@ export async function handleRequest(req: Request, res: Response) {
         error: "Missing circuit field in request body",
       })
     }
+    if (!vkey) {
+      return res.status(400).send({
+        error: "Missing vkey field in request body",
+      })
+    }
+    const isValid = await isValidCircuit(circuit_root, vkey, circuit_name)
+    if (!isValid) {
+      return res.status(400).send({
+        error: "Unsupported circuit",
+      })
+    }
 
     const mappedPath = BB_VERSIONS[bb_version as keyof typeof BB_VERSIONS]
     if (!mappedPath) {
@@ -105,9 +148,10 @@ export async function handleRequest(req: Request, res: Response) {
     const circuitPath = path.join(tempDir, "circuit.json")
     const proofPath = path.join(tempDir, "proof")
     const publicInputPath = path.join(tempDir, "public_inputs")
+    const vkeyPath = path.join(tempDir, "vkey")
 
     await writeFileAsync(circuitPath, JSON.stringify(circuit))
-
+    await writeFileAsync(vkeyPath, Buffer.from(vkey, "base64"))
     // Use solved witness if provided
     if (witness) {
       // Write base64-decoded witness to file
@@ -134,7 +178,7 @@ export async function handleRequest(req: Request, res: Response) {
 
     // Execute bb prove command
     const timePrefix = stats ? "/bin/time -v " : ""
-    const proveCommand = `${timePrefix}${BB_BINARY_PATH} prove --scheme ultra_honk --write_vk ${
+    const proveCommand = `${timePrefix}${BB_BINARY_PATH} prove --scheme ultra_honk --vk_path ${vkeyPath} ${
       evm ? " --oracle_hash keccak" : ""
     } -v -b ${circuitPath} -w ${witnessPath} -o ${tempDir} ${disable_zk ? "--disable_zk" : ""}`
 
