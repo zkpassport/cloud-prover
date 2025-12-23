@@ -1,5 +1,7 @@
 # ZKPassport Cloud Prover
 
+**NOTE:** This cloud prover is only used for recursing sub-proofs (already proven with concealed private inputs) into a final compressed EVM-compatible proof, or for proving non-sensitive sub-proofs, where a user's device memory is insufficient (i.e. less than ~2 GB). No sensitive passport/national ID card information ever leaves a user's device (unless they explicitly share it with a service).
+
 A cloud-based prover service for generating proofs using Barretenberg (bb), deployed on AWS Fargate
 with Application Load Balancer.
 
