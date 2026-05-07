@@ -53,7 +53,7 @@ RUN chmod +x /scripts/download_bb_crs.sh
 RUN cd ~ && /scripts/download_bb_crs.sh 23
 
 # Build bb v4.2.0-aztecnr-rc.2
-RUN cd ~ && git clone --depth 1 --branch v4.2.0-aztecnr-rc.2 https://github.com/aztecprotocol/aztec-packages aztec-packages-v4.2.0-aztecnr-rc.2
+RUN cd ~ && git clone --depth 1 --branch v4.2.0-aztecnr-rc.2 --recurse-submodules --shallow-submodules https://github.com/aztecprotocol/aztec-packages aztec-packages-v4.2.0-aztecnr-rc.2
 
 RUN cd ~/aztec-packages-v4.2.0-aztecnr-rc.2/avm-transpiler && cargo build --release
 RUN cd ~/aztec-packages-v4.2.0-aztecnr-rc.2/barretenberg/cpp && cmake --preset clang20-no-avm \
