@@ -50,7 +50,7 @@ RUN cd ~ && /scripts/download_bb_crs.sh 23
 
 # Build bb v4.2.0-aztecnr-rc.2
 RUN cd ~ && git clone --depth 1 --branch v4.2.0-aztecnr-rc.2 https://github.com/aztecprotocol/aztec-packages aztec-packages-v4.2.0-aztecnr-rc.2
-RUN cd ~/aztec-packages-v4.2.0-aztecnr-rc.2/barretenberg/cpp && cmake --preset clang16 \
+RUN cd ~/aztec-packages-v4.2.0-aztecnr-rc.2/barretenberg/cpp && cmake --preset clang20 \
     -DCMAKE_BUILD_TYPE=Release \
     -DTARGET_ARCH=native \
     -DENABLE_PAR_ALGOS=ON \
