@@ -43,6 +43,10 @@ RUN apt update && apt install -y libssl-dev && rm -rf /var/lib/apt/lists/*
 # Install LLVM 16 (clang 16) and LLVM 20 (clang 20)
 RUN cd ~ && wget https://apt.llvm.org/llvm.sh && chmod +x llvm.sh && ./llvm.sh 16 && ./llvm.sh 20
 
+# Install Rust (needed to build avm-transpiler for bb v4)
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable --profile minimal
+ENV PATH=/root/.cargo/bin:$PATH
+
 # Download bb crs
 COPY scripts/download_bb_crs.sh /scripts/download_bb_crs.sh
 RUN chmod +x /scripts/download_bb_crs.sh
@@ -50,6 +54,8 @@ RUN cd ~ && /scripts/download_bb_crs.sh 23
 
 # Build bb v4.2.0-aztecnr-rc.2
 RUN cd ~ && git clone --depth 1 --branch v4.2.0-aztecnr-rc.2 https://github.com/aztecprotocol/aztec-packages aztec-packages-v4.2.0-aztecnr-rc.2
+
+RUN cd ~/aztec-packages-v4.2.0-aztecnr-rc.2/avm-transpiler && cargo build --release
 RUN cd ~/aztec-packages-v4.2.0-aztecnr-rc.2/barretenberg/cpp && cmake --preset clang20-no-avm \
     -DCMAKE_BUILD_TYPE=Release \
     -DTARGET_ARCH=native \
