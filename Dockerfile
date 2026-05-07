@@ -95,26 +95,26 @@ COPY --from=builder /root/grumpkin_g1.dat /root/.bb-crs/
 COPY --from=builder /root/grumpkin_size /root/.bb-crs/
 
 # Copy GCC 13 libraries
-COPY --from=builder /usr/lib/aarch64-linux-gnu/libstdc++.so.6 /usr/lib/aarch64-linux-gnu/
-COPY --from=builder /usr/lib/aarch64-linux-gnu/libgcc_s.so.1 /usr/lib/aarch64-linux-gnu/
-COPY --from=builder /usr/lib/aarch64-linux-gnu/libstdc++.so.6.0.32 /usr/lib/aarch64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libstdc++.so.6 /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libgcc_s.so.1 /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.32 /usr/lib/x86_64-linux-gnu/
 
 # Copy required shared libraries
-COPY --from=builder /usr/lib/aarch64-linux-gnu/libtinfo.so.6 /usr/lib/aarch64-linux-gnu/
-COPY --from=builder /usr/lib/aarch64-linux-gnu/libjq.so.1 /usr/lib/aarch64-linux-gnu/
-COPY --from=builder /usr/lib/aarch64-linux-gnu/libonig.so.5 /usr/lib/aarch64-linux-gnu/
-COPY --from=builder /usr/lib/aarch64-linux-gnu/libcurl.so.4 /usr/lib/aarch64-linux-gnu/
-COPY --from=builder /usr/lib/aarch64-linux-gnu/libnghttp2.so.14 /usr/lib/aarch64-linux-gnu/
-COPY --from=builder /usr/lib/aarch64-linux-gnu/libidn2.so.0 /usr/lib/aarch64-linux-gnu/
-COPY --from=builder /usr/lib/aarch64-linux-gnu/librtmp.so.1 /usr/lib/aarch64-linux-gnu/
-COPY --from=builder /usr/lib/aarch64-linux-gnu/libssh.so.4 /usr/lib/aarch64-linux-gnu/
-COPY --from=builder /usr/lib/aarch64-linux-gnu/libpsl.so.5 /usr/lib/aarch64-linux-gnu/
-COPY --from=builder /usr/lib/aarch64-linux-gnu/libssl.so.3 /usr/lib/aarch64-linux-gnu/
-COPY --from=builder /usr/lib/aarch64-linux-gnu/libcrypto.so.3 /usr/lib/aarch64-linux-gnu/
-COPY --from=builder /usr/lib/aarch64-linux-gnu/libz.so.1 /usr/lib/aarch64-linux-gnu/
-COPY --from=builder /usr/lib/aarch64-linux-gnu/libunistring.so.2 /usr/lib/aarch64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libtinfo.so.6 /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libjq.so.1 /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libonig.so.5 /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libcurl.so.4 /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libnghttp2.so.14 /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libidn2.so.0 /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/librtmp.so.1 /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libssh.so.4 /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libpsl.so.5 /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libssl.so.3 /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libcrypto.so.3 /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libz.so.1 /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libunistring.so.2 /usr/lib/x86_64-linux-gnu/
 
-COPY --from=builder /usr/lib/aarch64-linux-gnu/*.* /usr/lib/aarch64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/*.* /usr/lib/x86_64-linux-gnu/
 
 # Copy binary dependencies from builder
 COPY --from=builder /usr/bin/time /bin/time
