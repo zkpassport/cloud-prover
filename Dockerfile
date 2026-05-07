@@ -67,6 +67,11 @@ RUN cp ~/aztec-packages-v4.2.0-aztecnr-rc.2/barretenberg/cpp/build/bin/bb /bb_v4
 
 # Build bb v2.0.3
 RUN cd ~ && git clone --depth 1 --branch v2.0.3 https://github.com/zkpassport/aztec-packages aztec-packages-v2.0.3
+# msgpack-c pin SHA isn't on any branch tip in AztecProtocol/msgpack-c, so default git fetch can't see it; switch to tarball-by-SHA
+RUN sed -i \
+    -e 's|GIT_REPOSITORY "https://github.com/AztecProtocol/msgpack-c.git"|URL "https://github.com/AztecProtocol/msgpack-c/archive/5ee9a1c8c325658b29867829677c7eb79c433a98.tar.gz"|' \
+    -e '/GIT_TAG 5ee9a1c8c325658b29867829677c7eb79c433a98/d' \
+    ~/aztec-packages-v2.0.3/barretenberg/cpp/cmake/msgpack.cmake
 RUN cd ~/aztec-packages-v2.0.3/barretenberg/cpp && cmake --preset clang20 \
     -DCMAKE_BUILD_TYPE=Release \
     -DTARGET_ARCH=native \
