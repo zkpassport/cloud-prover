@@ -12,7 +12,7 @@ app.use(
 const port = process.env.PORT || 3000
 
 app.get("/", (req: Request, res: Response) => {
-  res.send("Hello from Fargate!!!")
+  res.send("ZKPassport cloud prover")
 })
 
 app.post("/prove", async (req: Request, res: Response) => {
