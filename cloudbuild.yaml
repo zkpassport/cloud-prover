@@ -1,0 +1,27 @@
+# Builds the cloud prover image on a high-CPU Cloud Build machine.
+# Compiling bb from source is too heavy for default CI runners, so the
+# build runs here and the GitHub Actions workflow just submits + deploys.
+substitutions:
+  _REPO: us-central1-docker.pkg.dev/zkpassport-cloud-prover/cloud-prover/cloud-prover
+  _SHA: manual
+
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - ${_REPO}:${_SHA}
+      - -t
+      - ${_REPO}:latest
+      - .
+
+images:
+  - ${_REPO}:${_SHA}
+  - ${_REPO}:latest
+
+options:
+  machineType: E2_HIGHCPU_32
+  diskSizeGb: 200
+
+# bb compiles from source (incl. LLVM/Rust toolchain); give it plenty of headroom.
+timeout: 3600s
