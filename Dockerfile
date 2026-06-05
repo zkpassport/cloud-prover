@@ -1,5 +1,5 @@
 # Builder image
-FROM ubuntu:22.04 AS builder
+FROM --platform=linux/amd64 ubuntu:22.04 AS builder
 
 # Install GCC 13
 RUN apt update && apt install -y software-properties-common
@@ -58,10 +58,10 @@ RUN cd ~ && git clone --depth 1 --branch v4.2.0-aztecnr-rc.2 --recurse-submodule
 RUN cd ~/aztec-packages-v4.2.0-aztecnr-rc.2/avm-transpiler && cargo build --release
 RUN cd ~/aztec-packages-v4.2.0-aztecnr-rc.2/barretenberg/cpp && cmake --preset clang20-no-avm \
     -DCMAKE_BUILD_TYPE=Release \
-    -DTARGET_ARCH=native \
+    -DTARGET_ARCH=x86-64-v3 \
     -DENABLE_PAR_ALGOS=ON \
     -DMULTITHREADING=ON \
-    -DCMAKE_CXX_FLAGS="-O3 -march=native -mtune=native" && \
+    -DCMAKE_CXX_FLAGS="-O3 -march=x86-64-v3 -mtune=generic" && \
     cmake --build build --target bb
 RUN cp ~/aztec-packages-v4.2.0-aztecnr-rc.2/barretenberg/cpp/build/bin/bb /bb_v4.2.0-aztecnr-rc.2
 
@@ -74,11 +74,11 @@ RUN sed -i \
     ~/aztec-packages-v2.0.3/barretenberg/cpp/cmake/msgpack.cmake
 RUN cd ~/aztec-packages-v2.0.3/barretenberg/cpp && cmake --preset clang20 \
     -DCMAKE_BUILD_TYPE=Release \
-    -DTARGET_ARCH=native \
+    -DTARGET_ARCH=x86-64-v3 \
     -DENABLE_PAR_ALGOS=ON \
     -DMULTITHREADING=ON \
     -DDISABLE_AZTEC_VM=ON \
-    -DCMAKE_CXX_FLAGS="-O3 -march=native -mtune=native" && \
+    -DCMAKE_CXX_FLAGS="-O3 -march=x86-64-v3 -mtune=generic" && \
     cmake --build build --target bb
 RUN cp ~/aztec-packages-v2.0.3/barretenberg/cpp/build/bin/bb /bb_v2.0.3
 
@@ -92,7 +92,7 @@ RUN npm run build
 # ---
 
 # Final minimal runtime image using Distroless
-FROM gcr.io/distroless/nodejs20
+FROM --platform=linux/amd64 gcr.io/distroless/nodejs20
 
 # Copy bb binaries from builder (versioned names match BB_VERSIONS in handler.ts)
 COPY --from=builder /bb_v4.2.0-aztecnr-rc.2 /usr/bin/bb_v4.2.0-aztecnr-rc.2
