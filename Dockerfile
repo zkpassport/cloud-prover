@@ -84,7 +84,7 @@ RUN cp ~/aztec-packages-v2.0.3/barretenberg/cpp/build/bin/bb /bb_v2.0.3
 
 # Install npm dependencies and build nodejs app
 WORKDIR /app
-COPY package.json package-lock.json tsconfig.json .
+COPY package.json package-lock.json tsconfig.json ./
 COPY src ./src
 RUN npm install
 RUN npm run build
