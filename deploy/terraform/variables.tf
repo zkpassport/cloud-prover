@@ -11,7 +11,7 @@ variable "region" {
 variable "zone" {
   type        = string
   default     = "us-central1-a"
-  description = "Zonal cluster (single zone) to keep cost down, mirroring the aztec GKE setup."
+  description = "Zonal cluster (single zone) to keep cost down."
 }
 
 variable "cluster_name" {

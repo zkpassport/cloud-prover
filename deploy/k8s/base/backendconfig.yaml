@@ -3,8 +3,7 @@ kind: BackendConfig
 metadata:
   name: cloud-prover
 spec:
-  # A proof takes ~84s. The OLD setup used 60s, so the load balancer cut the
-  # connection mid-proof and clients saw gateway errors. 600s gives ample margin.
+  # Proofs take ~84s; allow generous margin so the load balancer doesn't cut long requests.
   timeoutSec: 600
   healthCheck:
     type: HTTP

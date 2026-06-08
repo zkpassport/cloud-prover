@@ -70,8 +70,7 @@ No Prometheus — observability is via the **standard Google Cloud console**:
 
 - **Spot eviction**: a reclaimed node kills the in-flight proof; the client must retry.
   `terminationGracePeriodSeconds: 120` lets a near-complete proof finish on graceful drains.
-- **Scaling signal**: HPA scales on CPU (60%), a coarse proxy for "a proof is running" — same as
-  the previous setup. True one-proof-per-pod admission would need an app-level concurrency gate or
-  a custom request-count metric.
+- **Scaling signal**: HPA scales on CPU (60%), a coarse proxy for "a proof is running". True
+  one-proof-per-pod admission would need an app-level concurrency gate or a custom request-count metric.
 - **Cost (spot, us-central1, approx)**: warm baseline ≈ system `e2-medium` (~$24/mo) +
   one `t2d-standard-16` spot node (~$131/mo). Additional spot nodes only while bursting.

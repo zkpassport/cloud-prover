@@ -16,7 +16,7 @@ spec:
         target:
           type: Utilization
           averageUtilization: 60
-  # NOTE: CPU-based scaling is a coarse proxy for "a proof is running" (mirrors
-  # the previous setup). Each new pod triggers the cluster autoscaler to add a
-  # spot node. True one-proof-per-pod admission control would need a queue/
-  # concurrency gate in the app or a custom (request-count) metric.
+  # NOTE: CPU-based scaling is a coarse proxy for "a proof is running". Each new
+  # pod triggers the cluster autoscaler to add a spot node. True one-proof-per-pod
+  # admission would need a queue/concurrency gate in the app or a custom
+  # (request-count) metric.

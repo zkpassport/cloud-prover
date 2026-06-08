@@ -1,5 +1,5 @@
-# Standard zonal GKE cluster. Mirrors the aztec GKE layout: a small on-demand
-# system pool + a spot pool that actually runs the prover.
+# Standard zonal GKE cluster: a small on-demand system pool for GKE system
+# workloads + a spot pool that runs the prover.
 resource "google_container_cluster" "this" {
   name     = var.cluster_name
   location = var.zone
