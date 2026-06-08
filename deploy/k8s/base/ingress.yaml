@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cloud-prover
+  annotations:
+    kubernetes.io/ingress.class: gce
+    # Static IP reserved in Terraform (google_compute_global_address.ingress).
+    kubernetes.io/ingress.global-static-ip-name: cloud-prover-ip
+    # Google-managed TLS cert (see managedcertificate.yaml).
+    networking.gke.io/managed-certificates: cloud-prover
+    # Redirect HTTP -> HTTPS.
+    kubernetes.io/ingress.allow-http: "false"
+spec:
+  defaultBackend:
+    service:
+      name: cloud-prover
+      port:
+        number: 3000

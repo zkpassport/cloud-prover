@@ -76,6 +76,8 @@ async function isValidCircuit(circuitRoot: string, vkey: string, circuitName: st
 
 export async function handleRequest(req: Request, res: Response) {
   let tempDir: string | undefined
+  let witnessGenMs: number | null = null
+  const reqStart = Date.now()
   try {
     if (!req.body) {
       return res.status(400).send({
@@ -163,6 +165,7 @@ export async function handleRequest(req: Request, res: Response) {
     }
     // Otherwise generate witness from inputs
     else {
+      const witnessGenStart = Date.now()
       // Generate witness map from the inputs and the circuit parameters (from the abi)
       const witnessMap = generateWitnessMap(inputs, circuit.abi.parameters)
       // Execute the circuit with the witness map
@@ -177,6 +180,7 @@ export async function handleRequest(req: Request, res: Response) {
       const witnessBytes = await compressWitness(bb_version)(executionResult)
       // Write the witness to a file
       await writeFileAsync(witnessPath, witnessBytes)
+      witnessGenMs = Date.now() - witnessGenStart
     }
 
     // Execute bb prove command
@@ -191,13 +195,13 @@ export async function handleRequest(req: Request, res: Response) {
       cwd: tempDir,
     })
     const endTime = Date.now()
-    const elapsedTime = (endTime - startTime) / 1000
-    console.log(`Elapsed time: ${elapsedTime.toFixed(2)} seconds`)
+    const bbProveMs = endTime - startTime
 
-    if (logging === true) {
-      console.log("stdout:", stdout)
-      console.log("stderr:", stderr)
-    }
+    // bb's `-v` output carries the in-bb phase timings (CRS load, proving-key
+    // construction, proving). Proof volume is low, so always surface it for
+    // drill-down in Cloud Logging.
+    if (stderr) console.log(`[bb_verbose] ${stderr}`)
+    if (logging === true) console.log("stdout:", stdout)
 
     // Check if proof file was created
     if (!fs.existsSync(proofPath)) {
@@ -207,6 +211,22 @@ export async function handleRequest(req: Request, res: Response) {
     const proofHex = fs.readFileSync(proofPath).toString("hex")
     const publicInputs = fs.readFileSync(publicInputPath).toString("hex")
 
+    // Structured per-proof timing — becomes queryable jsonPayload.* fields in
+    // Cloud Logging, and the basis for log-based metrics in Cloud Monitoring.
+    console.log(
+      JSON.stringify({
+        event: "proof_generated",
+        circuit_name,
+        bb_version,
+        evm,
+        disable_zk,
+        witness_source: witness ? "provided" : "generated",
+        witness_gen_ms: witnessGenMs,
+        bb_prove_ms: bbProveMs,
+        total_ms: Date.now() - reqStart,
+      }),
+    )
+
     return res.status(200).send({
       success: true,
       proof: proofHex,
@@ -214,7 +234,14 @@ export async function handleRequest(req: Request, res: Response) {
       public_inputs: publicInputs,
     })
   } catch (error) {
-    console.error("Error executing bb:", error)
+    console.error(
+      JSON.stringify({
+        event: "proof_failed",
+        witness_gen_ms: witnessGenMs,
+        total_ms: Date.now() - reqStart,
+        error: error instanceof Error ? error.message : "Unknown error",
+      }),
+    )
     return res.status(500).send({
       error: "Failed to execute bb prove",
       details: error instanceof Error ? error.message : "Unknown error",

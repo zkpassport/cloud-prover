@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloud-prover
+  labels:
+    app: cloud-prover
+  annotations:
+    # Container-native load balancing (NEG) for the GCE ingress.
+    cloud.google.com/neg: '{"ingress": true}'
+    # Attach the long-timeout backend config (proofs take ~84s).
+    cloud.google.com/backend-config: '{"default": "cloud-prover"}'
+spec:
+  type: ClusterIP
+  selector:
+    app: cloud-prover
+  ports:
+    - name: http
+      port: 3000
+      targetPort: http

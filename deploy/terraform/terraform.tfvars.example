@@ -1,0 +1,9 @@
+# Copy to terraform.tfvars and edit if you want to override defaults.
+# Defaults already target the zkpassport-cloud-prover project in us-central1.
+
+# project_id          = "zkpassport-cloud-prover"
+# region              = "us-central1"
+# zone                = "us-central1-a"
+# prover_machine_type = "t2d-standard-16"
+# prover_min_nodes    = 1
+# prover_max_nodes    = 6

@@ -11,8 +11,8 @@
   "dependencies": {
     "@aztec/noir-acvm_js-2.0.3": "npm:@aztec/noir-acvm_js@2.0.3",
     "@aztec/noir-acvm_js-4.2.0-aztecnr-rc.2": "npm:@aztec/noir-acvm_js@4.2.0-aztecnr-rc.2",
-    "@zkpassport/registry": "0.14.0-beta.1",
-    "@zkpassport/utils": "0.36.0-beta.1",
+    "@zkpassport/registry": "0.14.0",
+    "@zkpassport/utils": "0.36.0",
     "express": "^4.21.2"
   },
   "devDependencies": {

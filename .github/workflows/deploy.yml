@@ -1,0 +1,52 @@
+name: Deploy to GKE
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  PROJECT_ID: zkpassport-cloud-prover
+  REGION: us-central1
+  ZONE: us-central1-a
+  CLUSTER: cloud-prover
+  REPO: us-central1-docker.pkg.dev/zkpassport-cloud-prover/cloud-prover/cloud-prover
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/543818303676/locations/global/workloadIdentityPools/github-actions/providers/github
+          service_account: github-actions-deployer@zkpassport-cloud-prover.iam.gserviceaccount.com
+
+      - uses: google-github-actions/setup-gcloud@v2
+
+      # Build + push the image on a high-CPU Cloud Build machine (bb compiles from source).
+      - name: Build image
+        run: |
+          gcloud builds submit \
+            --project="$PROJECT_ID" \
+            --config=deploy/cloudbuild.yaml \
+            --substitutions=_REPO="$REPO",_SHA="${GITHUB_SHA::7}"
+
+      - name: Get GKE credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: ${{ env.CLUSTER }}
+          location: ${{ env.ZONE }}
+
+      - name: Deploy to GKE
+        run: |
+          cd deploy/k8s/base
+          kustomize edit set image "$REPO=$REPO:${GITHUB_SHA::7}"
+          kubectl apply -k .
+          kubectl -n zkpassport-cloud-prover rollout status deployment/cloud-prover --timeout=10m

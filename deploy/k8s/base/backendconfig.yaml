@@ -1,0 +1,11 @@
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: cloud-prover
+spec:
+  # Proofs take ~84s; allow generous margin so the load balancer doesn't cut long requests.
+  timeoutSec: 600
+  healthCheck:
+    type: HTTP
+    requestPath: /
+    port: 3000
