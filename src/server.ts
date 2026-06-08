@@ -1,6 +1,4 @@
 import express, { Request, Response } from "express"
-import http from "node:http"
-import client from "prom-client"
 import { handleRequest } from "./handler"
 
 const app = express()
@@ -11,7 +9,7 @@ app.use(
 )
 const port = process.env.PORT || 3000
 
-app.get("/", (req: Request, res: Response) => {
+app.get("/", (_req: Request, res: Response) => {
   res.send("ZKPassport cloud prover")
 })
 
@@ -22,21 +20,6 @@ app.post("/prove", async (req: Request, res: Response) => {
 // Start the server
 const server = app.listen(port, () => {
   console.log(`Server running on port ${port}`)
-})
-
-client.collectDefaultMetrics()
-const metricsPort = Number(process.env.METRICS_PORT ?? 9090)
-const metricsServer = http.createServer(async (req, res) => {
-  if (req.url === "/metrics") {
-    res.setHeader("Content-Type", client.register.contentType)
-    res.end(await client.register.metrics())
-    return
-  }
-  res.statusCode = 404
-  res.end()
-})
-metricsServer.listen(metricsPort, () => {
-  console.log(`Metrics server running on port ${metricsPort}`)
 })
 
 // Handle graceful shutdown

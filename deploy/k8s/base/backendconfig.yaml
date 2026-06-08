@@ -1,0 +1,12 @@
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: cloud-prover
+spec:
+  # A proof takes ~84s. The OLD setup used 60s, so the load balancer cut the
+  # connection mid-proof and clients saw gateway errors. 600s gives ample margin.
+  timeoutSec: 600
+  healthCheck:
+    type: HTTP
+    requestPath: /
+    port: 3000

@@ -1,4 +1,4 @@
-name: Deploy to Cloud Run
+name: Deploy to GKE
 
 on:
   push:
@@ -12,7 +12,8 @@ permissions:
 env:
   PROJECT_ID: zkpassport-cloud-prover
   REGION: us-central1
-  SERVICE: gcloud-prover
+  ZONE: us-central1-a
+  CLUSTER: cloud-prover
   REPO: us-central1-docker.pkg.dev/zkpassport-cloud-prover/cloud-prover/cloud-prover
 
 jobs:
@@ -29,27 +30,23 @@ jobs:
 
       - uses: google-github-actions/setup-gcloud@v2
 
-      # Build + push image on a high-CPU Cloud Build machine (bb compiles from source).
+      # Build + push the image on a high-CPU Cloud Build machine (bb compiles from source).
       - name: Build image
         run: |
           gcloud builds submit \
             --project="$PROJECT_ID" \
-            --config=cloudbuild.yaml \
+            --config=deploy/cloudbuild.yaml \
             --substitutions=_REPO="$REPO",_SHA="${GITHUB_SHA::7}"
 
-      - name: Deploy to Cloud Run
+      - name: Get GKE credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: ${{ env.CLUSTER }}
+          location: ${{ env.ZONE }}
+
+      - name: Deploy to GKE
         run: |
-          gcloud run deploy "$SERVICE" \
-            --project="$PROJECT_ID" \
-            --region="$REGION" \
-            --image="$REPO:${GITHUB_SHA::7}" \
-            --port=8080 \
-            --cpu=8 \
-            --memory=8Gi \
-            --concurrency=1 \
-            --min-instances=1 \
-            --max-instances=15 \
-            --timeout=3600 \
-            --execution-environment=gen2 \
-            --cpu-boost \
-            --allow-unauthenticated
+          cd deploy/k8s/base
+          kustomize edit set image "$REPO=$REPO:${GITHUB_SHA::7}"
+          kubectl apply -k .
+          kubectl -n zkpassport-cloud-prover rollout status deployment/cloud-prover --timeout=10m

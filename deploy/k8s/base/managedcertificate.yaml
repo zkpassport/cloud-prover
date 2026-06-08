@@ -1,0 +1,10 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: cloud-prover
+spec:
+  domains:
+    # CHANGE ME: the public hostname for the prover. Must resolve (A record) to
+    # the static ingress IP from `terraform output ingress_ip` before the cert
+    # can be provisioned.
+    - cloud-prover.zkpassport.id

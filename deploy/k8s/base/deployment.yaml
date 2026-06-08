@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloud-prover
+  labels:
+    app: cloud-prover
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cloud-prover
+  template:
+    metadata:
+      labels:
+        app: cloud-prover
+    spec:
+      # Run only on the spot prover pool (tainted in Terraform).
+      nodeSelector:
+        pool: prover
+      tolerations:
+        - key: dedicated
+          operator: Equal
+          value: prover
+          effect: NoSchedule
+        - key: cloud.google.com/gke-spot
+          operator: Equal
+          value: "true"
+          effect: NoSchedule
+      # ~84s proofs: give bb time to finish before SIGKILL on shutdown/eviction.
+      terminationGracePeriodSeconds: 120
+      containers:
+        - name: cloud-prover
+          # CI overwrites this tag via `kustomize edit set image`.
+          image: us-central1-docker.pkg.dev/zkpassport-cloud-prover/cloud-prover/cloud-prover:latest
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+          resources:
+            # ~14 vCPU request guarantees one proof per t2d-standard-16 node.
+            # No CPU limit: let bb burst across all cores. Measured peak RAM ~11 GiB.
+            requests:
+              cpu: "14"
+              memory: 16Gi
+            limits:
+              memory: 32Gi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 30
