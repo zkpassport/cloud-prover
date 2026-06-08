@@ -27,7 +27,7 @@ circuits are accepted (validated against the ZKPassport circuit registry).
 - **CI/CD:** GitHub Actions (`.github/workflows/deploy.yml`) authenticates to GCP via Workload
   Identity Federation, builds the image on a high-CPU Cloud Build machine (`deploy/cloudbuild.yaml` —
   bb is compiled from source, too heavy for default runners), then `kubectl apply -k`s the manifests
-  to GKE. Triggered on push to `main` or manually via `workflow_dispatch`.
+  to GKE. Triggered manually via `workflow_dispatch` (Actions tab or `gh workflow run`).
 
 ## Prerequisites
 
@@ -55,9 +55,10 @@ This gives a local `http://localhost:8080` endpoint with `POST /prove`.
 
 ## Deployment
 
-Deploys run automatically via GitHub Actions on push to `main`. For first-time cluster
-provisioning, manual deploys, and decommissioning the old Cloud Run service, see
-[`deploy/README.md`](deploy/README.md). Manual image build + deploy:
+Deploys are triggered manually — run the **Deploy to GKE** workflow from the Actions tab
+(or `gh workflow run "Deploy to GKE"`). For first-time cluster provisioning, manual deploys,
+and decommissioning the old Cloud Run service, see [`deploy/README.md`](deploy/README.md).
+Manual image build + deploy:
 
 ```sh
 # Build + push image on Cloud Build

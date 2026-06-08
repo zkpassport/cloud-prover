@@ -22,7 +22,7 @@ resource "google_container_cluster" "this" {
 
   deletion_protection = true
 
-  depends_on = [google_project_service.container]
+  depends_on = [google_project_service.container, google_project_service.compute]
 }
 
 # Small, on-demand pool for GKE system workloads (kube-dns, metrics, GMP).
