@@ -8,7 +8,7 @@ A cloud-based prover service for generating proofs using Barretenberg (bb), depl
 
 This project implements a cloud prover service for ZKPassport, built using Node.js and TypeScript. It
 runs as a containerized service on GKE and shells out to the Barretenberg (bb) proving system.
-The container bundles two pinned bb builds (`2.0.3` and `4.2.0-aztecnr-rc.2`) plus the CRS, and
+The container bundles a pinned bb build (`4.2.0-aztecnr-rc.2`) plus the CRS, and
 exposes a single `POST /prove` endpoint. Only the `outer*`, `facematch*`, and `sig_check_dsc*`
 circuits are accepted (validated against the ZKPassport circuit registry).
 
@@ -25,9 +25,9 @@ circuits are accepted (validated against the ZKPassport circuit registry).
 - **IaC:** `deploy/terraform/` (cluster, node pools, IAM, static IP) and `deploy/k8s/` (kustomize
   manifests). See [`deploy/README.md`](deploy/README.md) for the bootstrap + cutover runbook.
 - **CI/CD:** GitHub Actions (`.github/workflows/deploy.yml`) authenticates to GCP via Workload
-  Identity Federation, builds the image on a high-CPU Cloud Build machine (`deploy/cloudbuild.yaml` —
-  bb is compiled from source, too heavy for default runners), then `kubectl apply -k`s the manifests
-  to GKE. Triggered manually via `workflow_dispatch` (Actions tab or `gh workflow run`).
+  Identity Federation, builds the image on Cloud Build (`deploy/cloudbuild.yaml` — bb is fetched as a
+  prebuilt binary, so the build is light/fast), then `kubectl apply -k`s the manifests to GKE.
+  Triggered manually via `workflow_dispatch` (Actions tab or `gh workflow run`).
 
 ## Prerequisites
 
@@ -48,10 +48,10 @@ Or build and run the full container image (linux/amd64):
 
 ```sh
 docker buildx build --platform linux/amd64 -t cloud-prover .
-docker run --platform linux/amd64 -p 8080:8080 --rm -it cloud-prover
+docker run --platform linux/amd64 -p 3000:3000 --rm -it cloud-prover
 ```
 
-This gives a local `http://localhost:8080` endpoint with `POST /prove`.
+This gives a local `http://localhost:3000` endpoint with `POST /prove`.
 
 ## Deployment
 

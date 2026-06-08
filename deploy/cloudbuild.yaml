@@ -1,6 +1,6 @@
-# Builds the cloud prover image on a high-CPU Cloud Build machine.
-# Compiling bb from source is too heavy for default CI runners, so the
-# build runs here and the GitHub Actions workflow just submits + deploys.
+# Builds the cloud prover image on Cloud Build. bb is fetched as a prebuilt
+# binary (not compiled), so this is a light, fast build; the GitHub Actions
+# workflow just submits + deploys.
 substitutions:
   _REPO: us-central1-docker.pkg.dev/zkpassport-cloud-prover/cloud-prover/cloud-prover
   _SHA: manual
@@ -20,8 +20,11 @@ images:
   - ${_REPO}:latest
 
 options:
-  machineType: E2_HIGHCPU_32
-  diskSizeGb: 200
+  machineType: E2_HIGHCPU_8
+  diskSizeGb: 100
+  # Send logs to Cloud Logging (not the default GCS bucket) so the CI service
+  # account — which isn't project Viewer/Owner — can submit without the
+  # "can only stream logs if you are Viewer/Owner" error.
+  logging: CLOUD_LOGGING_ONLY
 
-# bb compiles from source (incl. LLVM/Rust toolchain); give it plenty of headroom.
-timeout: 3600s
+timeout: 1200s

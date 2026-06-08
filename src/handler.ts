@@ -5,10 +5,6 @@ import * as os from "os"
 import * as path from "path"
 import { Request, Response } from "express"
 import {
-  executeCircuit as executeCircuitV2_0_3,
-  compressWitness as compressWitnessV2_0_3,
-} from "@aztec/noir-acvm_js-2.0.3"
-import {
   executeCircuit as executeCircuitV4_2_0_aztecnr_rc_2,
   compressWitness as compressWitnessV4_2_0_aztecnr_rc_2,
 } from "@aztec/noir-acvm_js-4.2.0-aztecnr-rc.2"
@@ -16,10 +12,10 @@ import { generateWitnessMap } from "./utils"
 import { RegistryClient } from "@zkpassport/registry"
 import { CircuitManifest, PackagedCircuit } from "@zkpassport/utils"
 
-// Binary path per bb version. Override per-version via env vars for local dev
-// (e.g. BB_BIN_V2_0_3=/Users/me/.bb/v2.0.3/bb). Defaults match the Dockerfile layout.
+// Binary path per bb version. Override per-version via env vars for local dev.
+// Defaults match the Dockerfile layout. To add a version (e.g. v5), add an entry
+// here, an acvm_js import, and a branch in executeCircuit/compressWitness below.
 const BB_VERSIONS: Record<string, string> = {
-  "2.0.3": process.env.BB_BIN_V2_0_3 ?? "bb_v2.0.3",
   "4.2.0-aztecnr-rc.2":
     process.env.BB_BIN_V4_2_0_AZTECNR_RC_2 ?? "bb_v4.2.0-aztecnr-rc.2",
 }
@@ -28,9 +24,7 @@ const execAsync = promisify(exec)
 const writeFileAsync = promisify(fs.writeFile)
 
 const executeCircuit = (bb_version: string) => {
-  if (bb_version === "2.0.3") {
-    return executeCircuitV2_0_3
-  } else if (bb_version === "4.2.0-aztecnr-rc.2") {
+  if (bb_version === "4.2.0-aztecnr-rc.2") {
     return executeCircuitV4_2_0_aztecnr_rc_2
   } else {
     throw new Error(`Unsupported bb version: ${bb_version}`)
@@ -38,9 +32,7 @@ const executeCircuit = (bb_version: string) => {
 }
 
 const compressWitness = (bb_version: string) => {
-  if (bb_version === "2.0.3") {
-    return compressWitnessV2_0_3
-  } else if (bb_version === "4.2.0-aztecnr-rc.2") {
+  if (bb_version === "4.2.0-aztecnr-rc.2") {
     return compressWitnessV4_2_0_aztecnr_rc_2
   } else {
     throw new Error(`Unsupported bb version: ${bb_version}`)
