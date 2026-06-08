@@ -1,8 +1,7 @@
 name: Deploy to GKE
 
+# Manual only — trigger from the Actions tab (or `gh workflow run`).
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -33,10 +32,14 @@ jobs:
       # Build + push the image on a high-CPU Cloud Build machine (bb compiles from source).
       - name: Build image
         run: |
+          # --suppress-logs: the deployer SA isn't project Viewer/Owner, so it
+          # can't stream the default-bucket logs; suppress streaming (the build
+          # still runs and its exit status is reported). Logs are in the console.
           gcloud builds submit \
             --project="$PROJECT_ID" \
             --config=deploy/cloudbuild.yaml \
-            --substitutions=_REPO="$REPO",_SHA="${GITHUB_SHA::7}"
+            --substitutions=_REPO="$REPO",_SHA="${GITHUB_SHA::7}" \
+            --suppress-logs
 
       - name: Get GKE credentials
         uses: google-github-actions/get-gke-credentials@v2
