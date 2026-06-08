@@ -48,10 +48,10 @@ Or build and run the full container image (linux/amd64):
 
 ```sh
 docker buildx build --platform linux/amd64 -t cloud-prover .
-docker run --platform linux/amd64 -p 8080:8080 --rm -it cloud-prover
+docker run --platform linux/amd64 -p 3000:3000 --rm -it cloud-prover
 ```
 
-This gives a local `http://localhost:8080` endpoint with `POST /prove`.
+This gives a local `http://localhost:3000` endpoint with `POST /prove`.
 
 ## Deployment
 
