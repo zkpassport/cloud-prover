@@ -1,20 +1,12 @@
-# Single-stage image. Ubuntu 24.04 provides the glibc (2.39) and libstdc++
-# (GLIBCXX_3.4.32+) that the prebuilt bb binary requires — newer than distroless
-# or Ubuntu 22.04 ship. bb is downloaded (not compiled), so the build is fast.
 FROM --platform=linux/amd64 ubuntu:24.04
 
 # Node 20 + the few tools needed to fetch bb and the CRS.
-# (`time` backs the optional `stats` request flag, which shells out to /bin/time.)
 RUN apt-get update && apt-get install -y --no-install-recommends \
       ca-certificates curl time && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y --no-install-recommends nodejs && \
-    ln -sf /usr/bin/time /bin/time && \
     rm -rf /var/lib/apt/lists/*
 
-# Prebuilt bb (linux/amd64, built -march=skylake → runs on x86-64-v3 / t2d nodes).
-# To add a version (e.g. v5): download its tarball to a matching bb_<version>
-# path and add it to BB_VERSIONS in src/handler.ts.
 ARG BB_VERSION=4.2.0-aztecnr-rc.2
 RUN curl -fsSL "https://github.com/AztecProtocol/aztec-packages/releases/download/v${BB_VERSION}/barretenberg-amd64-linux.tar.gz" -o /tmp/bb.tar.gz && \
     tar -xzf /tmp/bb.tar.gz -C /tmp && \
