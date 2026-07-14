@@ -8,6 +8,10 @@ import {
   executeCircuit as executeCircuitV4_2_0_aztecnr_rc_2,
   compressWitness as compressWitnessV4_2_0_aztecnr_rc_2,
 } from "@aztec/noir-acvm_js-4.2.0-aztecnr-rc.2"
+import {
+  executeCircuit as executeCircuitV5_0_0,
+  compressWitness as compressWitnessV5_0_0,
+} from "@aztec/noir-acvm_js-5.0.0"
 import { generateWitnessMap } from "./utils"
 import { RegistryClient } from "@zkpassport/registry"
 import { CircuitManifest, PackagedCircuit } from "@zkpassport/utils"
@@ -18,6 +22,7 @@ import { CircuitManifest, PackagedCircuit } from "@zkpassport/utils"
 const BB_VERSIONS: Record<string, string> = {
   "4.2.0-aztecnr-rc.2":
     process.env.BB_BIN_V4_2_0_AZTECNR_RC_2 ?? "bb_v4.2.0-aztecnr-rc.2",
+  "5.0.0": process.env.BB_BIN_V5_0_0 ?? "bb_v5.0.0",
 }
 
 const execAsync = promisify(exec)
@@ -26,6 +31,8 @@ const writeFileAsync = promisify(fs.writeFile)
 const executeCircuit = (bb_version: string) => {
   if (bb_version === "4.2.0-aztecnr-rc.2") {
     return executeCircuitV4_2_0_aztecnr_rc_2
+  } else if (bb_version === "5.0.0") {
+    return executeCircuitV5_0_0
   } else {
     throw new Error(`Unsupported bb version: ${bb_version}`)
   }
@@ -34,6 +41,8 @@ const executeCircuit = (bb_version: string) => {
 const compressWitness = (bb_version: string) => {
   if (bb_version === "4.2.0-aztecnr-rc.2") {
     return compressWitnessV4_2_0_aztecnr_rc_2
+  } else if (bb_version === "5.0.0") {
+    return compressWitnessV5_0_0
   } else {
     throw new Error(`Unsupported bb version: ${bb_version}`)
   }

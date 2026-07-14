@@ -8,8 +8,9 @@ A cloud-based prover service for generating proofs using Barretenberg (bb), depl
 
 This project implements a cloud prover service for ZKPassport, built using Node.js and TypeScript. It
 runs as a containerized service on GKE and shells out to the Barretenberg (bb) proving system.
-The container bundles a pinned bb build (`4.2.0-aztecnr-rc.2`) plus the CRS, and
-exposes a single `POST /prove` endpoint. Only the `outer*`, `facematch*`, and `sig_check_dsc*`
+The container bundles pinned bb builds (`4.2.0-aztecnr-rc.2` and `5.0.0`) plus the CRS, and
+exposes a single `POST /prove` endpoint. The `bb_version` field in the request body selects
+which build to use. Only the `outer*`, `facematch*`, and `sig_check_dsc*`
 circuits are accepted (validated against the ZKPassport circuit registry).
 
 ## Architecture

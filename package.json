@@ -4,14 +4,15 @@
   "description": "Cloud prover for generating proofs using bb",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "BB_BIN_V4_2_0_AZTECNR_RC_2=bb ts-node src/server.ts",
+    "dev": "BB_BIN_V4_2_0_AZTECNR_RC_2=bb BB_BIN_V5_0_0=bb ts-node src/server.ts",
     "build": "tsc",
     "test": "bun test"
   },
   "dependencies": {
     "@aztec/noir-acvm_js-4.2.0-aztecnr-rc.2": "npm:@aztec/noir-acvm_js@4.2.0-aztecnr-rc.2",
-    "@zkpassport/registry": "0.14.0",
-    "@zkpassport/utils": "0.36.0",
+    "@aztec/noir-acvm_js-5.0.0": "npm:@aztec/noir-acvm_js@5.0.0",
+    "@zkpassport/registry": "^0.14.0",
+    "@zkpassport/utils": "^0.37.3",
     "express": "^4.21.2"
   },
   "devDependencies": {

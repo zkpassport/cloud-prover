@@ -13,6 +13,12 @@ RUN curl -fsSL "https://github.com/AztecProtocol/aztec-packages/releases/downloa
     mv /tmp/bb /usr/bin/bb_v4.2.0-aztecnr-rc.2 && \
     rm /tmp/bb.tar.gz
 
+ARG BB_VERSION_V5=5.0.0
+RUN curl -fsSL "https://github.com/AztecProtocol/aztec-packages/releases/download/v${BB_VERSION_V5}/barretenberg-amd64-linux.tar.gz" -o /tmp/bb.tar.gz && \
+    tar -xzf /tmp/bb.tar.gz -C /tmp && \
+    mv /tmp/bb /usr/bin/bb_v5.0.0 && \
+    rm /tmp/bb.tar.gz
+
 # Pre-download the CRS so the first proof doesn't pay the fetch.
 COPY scripts/download_bb_crs.sh /tmp/download_bb_crs.sh
 RUN mkdir -p /root/.bb-crs && cd /root/.bb-crs && bash /tmp/download_bb_crs.sh 23
