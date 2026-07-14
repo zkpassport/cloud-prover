@@ -1,0 +1,14 @@
+apiVersion: networking.gke.io/v1
+kind: GCPBackendPolicy
+metadata:
+  name: cloud-prover
+spec:
+  # Gateway equivalent of the Ingress BackendConfig timeoutSec. Proofs take
+  # ~84s, so give the backend service a generous 600s timeout (Gateway's
+  # default is 30s, which would cut long proof requests).
+  default:
+    timeoutSec: 600
+  targetRef:
+    group: ""
+    kind: Service
+    name: cloud-prover

@@ -5,10 +5,12 @@ metadata:
   labels:
     app: cloud-prover
   annotations:
-    # Container-native load balancing (NEG) for the GCE ingress.
+    # Container-native load balancing (NEG); used by the Gateway backend.
     cloud.google.com/neg: '{"ingress": true}'
-    # Attach the long-timeout backend config (proofs take ~84s).
-    cloud.google.com/backend-config: '{"default": "cloud-prover"}'
+    # NOTE: the proof timeout (~84s) is set via the GCPBackendPolicy
+    # (gcpbackendpolicy.yaml). The Ingress-style cloud.google.com/backend-config
+    # annotation is intentionally omitted — the Gateway controller rejects the
+    # Service if it is present.
 spec:
   type: ClusterIP
   selector:

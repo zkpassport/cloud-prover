@@ -17,6 +17,13 @@ resource "google_container_cluster" "this" {
     workload_pool = "${var.project_id}.svc.id.goog"
   }
 
+  # Gateway API (gke-l7-* GatewayClasses) so the Gateway/HTTPRoute in
+  # deploy/k8s/base can attach the Certificate Manager certmap that serves both
+  # cloud-prover.zkpassport.id and cloud-prover.testnet.aztec.network.
+  gateway_api_config {
+    channel = "CHANNEL_STANDARD"
+  }
+
   # Monitoring is via Cloud Logging (structured proof logs) + the log-based
   # metric in monitoring.tf — no Prometheus scraping needed.
 

@@ -1,0 +1,14 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: cloud-prover
+spec:
+  parentRefs:
+    - name: cloud-prover
+  # No hostnames -> match every host and route it to the prover. The certmap
+  # on the Gateway selects the correct cert per SNI (zkpassport.id and
+  # testnet.aztec.network), so one route serves both domains.
+  rules:
+    - backendRefs:
+        - name: cloud-prover
+          port: 3000

@@ -1,0 +1,24 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: cloud-prover
+  annotations:
+    # Attach the Certificate Manager certificate map. It serves TLS for both
+    # cloud-prover.zkpassport.id (LB-authorized cert) and the migrated
+    # cloud-prover.testnet.aztec.network (DNS-authorized cert — see the
+    # _acme-challenge CNAME in foundation-iac/aztec.network/route53-records.tf,
+    # which must stay in place). The aztec cert is Active before the A-record
+    # cutover, so flipping aztec to this LB has no TLS gap.
+    networking.gke.io/certmap: cloud-prover-map
+spec:
+  gatewayClassName: gke-l7-global-external-managed
+  # Reuse the global static IP reserved in Terraform
+  # (google_compute_global_address.ingress, name "cloud-prover-ip").
+  addresses:
+    - type: NamedAddress
+      value: cloud-prover-ip
+  listeners:
+    - name: https
+      protocol: HTTPS
+      port: 443
+      # No tls block: certificates are supplied by the certmap annotation above.

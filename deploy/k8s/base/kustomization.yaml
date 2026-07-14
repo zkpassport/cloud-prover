@@ -7,9 +7,12 @@ resources:
   - namespace.yaml
   - deployment.yaml
   - service.yaml
-  - backendconfig.yaml
-  - managedcertificate.yaml
-  - ingress.yaml
+  # TLS + routing via the Gateway API (Certificate Manager certmap serves both
+  # zkpassport.id and testnet.aztec.network). The old Ingress + ManagedCertificate
+  # files are kept in the tree for rollback but are no longer applied.
+  - gateway.yaml
+  - httproute.yaml
+  - gcpbackendpolicy.yaml
   - hpa.yaml
 
 # CI runs `kustomize edit set image` to pin the freshly built tag.
