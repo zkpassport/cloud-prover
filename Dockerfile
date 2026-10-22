@@ -1,9 +1,9 @@
 FROM --platform=linux/amd64 ubuntu:24.04
 
-# Node 20 + the few tools needed to fetch bb and the CRS.
+# Node 22 + the few tools needed to fetch bb and the CRS.
 RUN apt-get update && apt-get install -y --no-install-recommends \
       ca-certificates curl time && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get install -y --no-install-recommends nodejs && \
     rm -rf /var/lib/apt/lists/*
 
