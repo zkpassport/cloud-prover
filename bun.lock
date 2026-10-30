@@ -5,7 +5,6 @@
     "": {
       "name": "zkpassport-cloud-prover-fargate",
       "dependencies": {
-        "@aztec/noir-acvm_js-4.2.0-aztecnr-rc.2": "npm:@aztec/noir-acvm_js@4.2.0-aztecnr-rc.2",
         "@aztec/noir-acvm_js-5.0.0": "npm:@aztec/noir-acvm_js@5.0.0",
         "@zkpassport/registry": "^0.14.0",
         "@zkpassport/utils": "^0.37.3",
@@ -22,8 +21,6 @@
   },
   "packages": {
     "@adraffy/ens-normalize": ["@adraffy/ens-normalize@1.10.1", "", {}, "sha512-96Z2IP3mYmF1Xg2cDm8f1gWGf/HUVedQ3FMifV4kG/PQ4yEP51xDtRAEfhVNt5f/uzpNkZHwWQuUcu6D6K+Ekw=="],
-
-    "@aztec/noir-acvm_js-4.2.0-aztecnr-rc.2": ["@aztec/noir-acvm_js@4.2.0-aztecnr-rc.2", "", {}, "sha512-OBubDpTTYEcz2EX8APl1mfn3OHDvMuZIm0t1//+u1BZbosrAjCpI76Vz39DNKpCZups4A+dJKHXlkj+RsFstbw=="],
 
     "@aztec/noir-acvm_js-5.0.0": ["@aztec/noir-acvm_js@5.0.0", "", {}, "sha512-vNmtASkLH15OeN+amoc7r7TTiV7N9sNZhFaCAKCid6vhSGgqKsoUrI37ekReU3w3TcgaBuOOm96jHrYLaXJA8Q=="],
 

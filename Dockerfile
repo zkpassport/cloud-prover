@@ -7,12 +7,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-get install -y --no-install-recommends nodejs && \
     rm -rf /var/lib/apt/lists/*
 
-ARG BB_VERSION=4.2.0-aztecnr-rc.2
-RUN curl -fsSL "https://github.com/AztecProtocol/aztec-packages/releases/download/v${BB_VERSION}/barretenberg-amd64-linux.tar.gz" -o /tmp/bb.tar.gz && \
-    tar -xzf /tmp/bb.tar.gz -C /tmp && \
-    mv /tmp/bb /usr/bin/bb_v4.2.0-aztecnr-rc.2 && \
-    rm /tmp/bb.tar.gz
-
 ARG BB_VERSION_V5=5.0.0
 RUN curl -fsSL "https://github.com/AztecProtocol/aztec-packages/releases/download/v${BB_VERSION_V5}/barretenberg-amd64-linux.tar.gz" -o /tmp/bb.tar.gz && \
     tar -xzf /tmp/bb.tar.gz -C /tmp && \
