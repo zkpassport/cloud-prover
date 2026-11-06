@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@aztec/noir-acvm_js-5.0.0": "npm:@aztec/noir-acvm_js@5.0.0",
-    "@noir-lang/acvm_js-1.0.0": "npm:@noir-lang/acvm_js@1.0.0",
     "@zkpassport/registry": "^0.14.0",
     "@zkpassport/utils": "^0.37.3",
     "express": "^4.21.2"
