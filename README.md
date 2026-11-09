@@ -8,10 +8,11 @@ A cloud-based prover service for generating proofs using Barretenberg (bb), depl
 
 This project implements a cloud prover service for ZKPassport, built using Node.js and TypeScript. It
 runs as a containerized service on GKE and shells out to the Barretenberg (bb) proving system.
-The container bundles pinned bb builds (`5.0.0`) plus the CRS, and
+The container bundles pinned bb builds (`5.0.0` and `6.0.0`) plus the CRS, and
 exposes a single `POST /prove` endpoint. The `bb_version` field in the request body selects
-which build to use. Only the `outer*`, `facematch*`, and `sig_check_dsc*`
-circuits are accepted (validated against the ZKPassport circuit registry).
+which build to use, and must match the bb version the circuit was packaged for. Only the `outer*`,
+`facematch*`, and `sig_check_dsc*` circuits are accepted (validated against the ZKPassport circuit
+registry).
 
 ## Architecture
 
@@ -32,7 +33,7 @@ circuits are accepted (validated against the ZKPassport circuit registry).
 
 ## Prerequisites
 
-- Node.js 20+
+- Node.js 22+
 - Docker (for local image builds)
 - `gcloud` CLI (for manual deploys / inspection)
 
@@ -42,7 +43,7 @@ Run the server directly against locally-installed bb binaries:
 
 ```sh
 npm install
-npm run dev   # ts-node src/server.ts, expects bb on PATH (see BB_VERSIONS in src/handler.ts)
+npm run dev   # ts-node src/server.ts with bb 5.0.0 as `bb` on PATH; BB_BIN_V6_0_0 sets bb 6.0.0's path (see BB_VERSIONS in src/handler.ts)
 ```
 
 Or build and run the full container image (linux/amd64):
