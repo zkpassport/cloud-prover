@@ -53,16 +53,21 @@ const compressWitness = (bb_version: string) => {
  * @param circuitRoot - The root of the circuit registry
  * @param vkey - The vkey of the circuit (in base64)
  * @param circuitName - The name of the circuit
- * @returns True if the circuit is valid (i.e. part of our circuit registry)
+ * @returns The circuit as packaged in our circuit registry, or undefined if the circuit is not
+ * valid (not part of the registry, or not one the cloud prover proves)
  */
-async function isValidCircuit(circuitRoot: string, vkey: string, circuitName: string) {
+async function getRegisteredCircuit(
+  circuitRoot: string,
+  vkey: string,
+  circuitName: string,
+): Promise<PackagedCircuit | undefined> {
   // Only outer, DSC signature verification and facematch circuits should be used in the cloud prover
   if (
     !circuitName.startsWith("outer") &&
     !circuitName.startsWith("facematch") &&
     !circuitName.startsWith("sig_check_dsc")
   ) {
-    return false
+    return undefined
   }
 
   const client = new RegistryClient({
@@ -72,7 +77,7 @@ async function isValidCircuit(circuitRoot: string, vkey: string, circuitName: st
   const packagedCircuit: PackagedCircuit = await client.getPackagedCircuit(circuitName, manifest, {
     validate: false,
   })
-  return packagedCircuit.vkey == vkey
+  return packagedCircuit.vkey == vkey ? packagedCircuit : undefined
 }
 
 export async function handleRequest(req: Request, res: Response) {
@@ -125,8 +130,8 @@ export async function handleRequest(req: Request, res: Response) {
         error: "Missing vkey field in request body",
       })
     }
-    const isValid = await isValidCircuit(circuit_root, vkey, circuit_name)
-    if (!isValid) {
+    const registeredCircuit = await getRegisteredCircuit(circuit_root, vkey, circuit_name)
+    if (!registeredCircuit) {
       return res.status(400).send({
         error: "Unsupported circuit",
       })
@@ -145,6 +150,11 @@ export async function handleRequest(req: Request, res: Response) {
         error:
           "bb binary path not set. Please provide bb_version in request body or set BB_BINARY_PATH environment variable",
         supportedVersions: Object.keys(BB_VERSIONS),
+      })
+    }
+    if (bb_version !== registeredCircuit.bb_version) {
+      return res.status(400).send({
+        error: `bb_version ${bb_version} does not match ${circuit_name}'s bb version ${registeredCircuit.bb_version}`,
       })
     }
 
